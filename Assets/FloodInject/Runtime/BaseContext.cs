@@ -60,5 +60,10 @@ namespace FloodInject.Runtime
             Assert.IsTrue(_bindings.ContainsKey(key));
             return (T2)_bindings[key];
         }
+        
+        public void Reset()
+        {
+            _bindings.Clear();
+        }
     }
 }

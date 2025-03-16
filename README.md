@@ -28,7 +28,7 @@ public partial class SceneContext
 }
 ```
 
-2. Bind, Rebind, Unbind functionality
+2. Bind, Rebind, Unbind, Get, Reset functionality
 ```
 var data = new Data();
 ContextProvider.GetContext<SceneContext>().Bind(data);
@@ -41,14 +41,17 @@ ContextProvider.GetContext<SceneContext>().Bind(data);
     - [x] Bind
     - [x] Rebind
     - [x] Unbind
-    - [ ] Context reset
+    - [x] Get
+    - [x] Reset
 - [x] Context generation
     - [x] Automatic registration
     - [x] Compile time type getter
-    - [ ] Validate single context per type
 - [ ] Auto Injection
     - [x] Get context type
     - [x] Build field inject metadata
-    - [x] Construct init
-    - [ ] Handle inherited injections
+    - [x] Construct inject method
+    - [ ] Trigger injection automatically
+- [ ] Handle inherited injections
+- [ ] Validate single context per type
 - [ ] Handle playmode
+- [ ] Unit testing

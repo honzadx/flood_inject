@@ -53,4 +53,9 @@ public abstract class BaseContext : ScriptableObject
     {
         return (T)_bindings[key];
     }
+
+    public void Reset()
+    {
+        _bindings.Clear();
+    }
 }
