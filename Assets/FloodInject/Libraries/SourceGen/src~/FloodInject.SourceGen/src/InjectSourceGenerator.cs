@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,13 @@ public class InjectSourceGenerator : IIncrementalGenerator
         public string @namespace;
         public ClassDeclarationSyntax @class;
         public UsingDirectiveSyntax[] usingDirectives;
-        public FieldDeclarationSyntax[] fields;
+        public InjectMetadata[] fields;
+    }
+
+    struct InjectMetadata
+    {
+        public FieldDeclarationSyntax field;
+        public TypeSyntax context;
     }
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -36,13 +43,26 @@ public class InjectSourceGenerator : IIncrementalGenerator
         var syntax = (ClassDeclarationSyntax)context.Node;
         var modifiersValid = syntax.HasModifiers(["public", "partial"]);
         var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
-        List<FieldDeclarationSyntax> injectFields = new List<FieldDeclarationSyntax>();
+        List<InjectMetadata> injectFields = new List<InjectMetadata>();
         foreach (var field in allFields)
         {
-            if (field.HasAttribute("FloodInject.Runtime.InjectAttribute", context))
+            if (!field.HasAttribute("FloodInject.Runtime.InjectAttribute", context))
             {
-                injectFields.Add(field);   
+                continue;
             }
+
+            var type = field
+                .GetFirstChildOfType<AttributeListSyntax>()
+                .GetFirstChildOfType<AttributeSyntax>()
+                .GetFirstChildOfType<AttributeArgumentListSyntax>()
+                .GetFirstChildOfType<AttributeArgumentSyntax>()
+                .GetFirstChildOfType<ExpressionSyntax>()
+                .GetFirstChildOfType<TypeSyntax>();
+            
+            InjectMetadata injectMetadata = default;
+            injectMetadata.field = field;
+            injectMetadata.context = type;
+            injectFields.Add(injectMetadata);
         }
         
         metadata.@class = syntax;
@@ -65,8 +85,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
             codeWriter.WriteLine(usingDirective.ToFullString());
         }
 
-        string generatedNamespace = string.IsNullOrEmpty(metadata.@namespace) ? "Generated" : metadata.@namespace + ".Generated";
-        codeWriter.StartNamespace(generatedNamespace);
+        codeWriter.StartNamespace(metadata.@namespace);
 
         foreach (var modifier in metadata.@class.Modifiers)
         {
@@ -76,16 +95,18 @@ public class InjectSourceGenerator : IIncrementalGenerator
         
         using (codeWriter.CreateScope(prefix: metadata.@class.Identifier.Text))
         {
-            using (codeWriter.CreateScope(prefix: "public readonly System.Type[] typesToInject = new System.Type[]", inlinePostfix: ";"))
+            using (codeWriter.CreateScope(prefix: "public void Inject()"))
             {
-                foreach (var field in metadata.fields)
+                foreach (var fieldMetadata in metadata.fields)
                 {
-                    codeWriter.WriteLine("typeof(" + field.Declaration.Type + "),");
+                    var variable = fieldMetadata.field.Declaration.Variables[0].Identifier.Text;
+                    var type = fieldMetadata.field.Declaration.Type.ToString();
+                    codeWriter.WriteLine(variable + " = ContextProvider.GetContext(typeof(" + fieldMetadata.context + ")).Get<" + type + ">();");
                 }
             }
         }
         
-        codeWriter.EndNamespace(generatedNamespace);
+        codeWriter.EndNamespace(metadata.@namespace);
         codeWriter.Flush();
         context.AddSource($"{metadata.@class.Identifier.Text}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
     }

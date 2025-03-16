@@ -48,6 +48,7 @@ ContextProvider.GetContext<SceneContext>().Bind(data);
     - [ ] Validate single context per type
 - [ ] Auto Injection
     - [x] Get context type
-    - [ ] Build field inject metadata
-    - [ ] Construct init
+    - [x] Build field inject metadata
+    - [x] Construct init
+    - [ ] Handle inherited injections
 - [ ] Handle playmode

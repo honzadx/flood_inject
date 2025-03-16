@@ -67,7 +67,8 @@ public class ContextSourceGenerator : IIncrementalGenerator
         
         using (codeWriter.CreateScope(prefix: metadata.@class.Identifier.Text))
         {
-            codeWriter.WriteLine("public override System.Type ContextType => typeof(" + metadata.@class.Identifier.Text + ");\n");
+            codeWriter.WriteLine("public static System.Type Type => typeof(" + metadata.@class.Identifier.Text + ");");
+            codeWriter.WriteLine("public override System.Type ContextType => " + metadata.@class.Identifier.Text + ".Type;\n");
             
             using (codeWriter.CreateScope(prefix: "protected void OnEnable()"))
             {

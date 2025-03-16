@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -47,6 +46,19 @@ internal static class SyntaxNodeExtensions
                 yield return target;
             }
         }
+    }
+    
+    public static T GetFirstChildOfType<T>(this SyntaxNode self) where T : SyntaxNode
+    {
+        foreach (var node in self.ChildNodes())
+        {
+            if (node is T target)
+            {
+                return target;
+            }
+        }
+
+        return default;
     }
     
     public static string GetNamespaceName(this SyntaxNode self)

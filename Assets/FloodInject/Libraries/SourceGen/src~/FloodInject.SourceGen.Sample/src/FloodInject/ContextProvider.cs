@@ -22,8 +22,8 @@ public static class ContextProvider
         return (T)_contexts[typeof(T)];
     }
         
-    public static T GetContext<T>(Type type) where T : BaseContext
+    public static BaseContext GetContext(Type type)
     {
-        return (T)_contexts[type];
+        return _contexts[type];
     }
 }
