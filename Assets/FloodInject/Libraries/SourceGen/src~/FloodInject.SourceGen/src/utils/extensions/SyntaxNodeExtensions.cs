@@ -148,11 +148,23 @@ internal static class SyntaxNodeExtensions
         return false;
     }
 
+    // TODO: (hdx) Find out how to check properly for inheritance
+    
+    /// <summary>
+    /// Tries to check if owner inherits from baseTypeName. Doesn't handle namespaces correctly, so baseTypeName could be either "System.Attribute" or "Attribute" depending on the SyntaxTree specifics. Can also check only depth 1 of inheritance.
+    /// </summary>
+    /// <param name="self">Owner.</param>
+    /// <param name="baseTypeName">Type name to check for a match.</param>
     public static bool HasBaseType(this TypeDeclarationSyntax self, string baseTypeName)
     {
         return HasBaseType(self.BaseList, baseTypeName);
     }
     
+    /// <summary>
+    /// Tries to check if owner inherits from baseTypeName. Doesn't handle namespaces correctly, so baseTypeName could be either "System.Attribute" or "Attribute" depending on the SyntaxTree specifics. Can also check only depth 1 of inheritance.
+    /// </summary>
+    /// <param name="baseList">Container.</param>
+    /// <param name="baseTypeName">Type name to check for a match.</param>
     public static bool HasBaseType(BaseListSyntax baseList, string baseTypeName)
     {
         if (baseList == null)
