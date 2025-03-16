@@ -1,0 +1,18 @@
+{
+    "name": "FloodInject.Editor",
+    "rootNamespace": "FloodInject.Editor",
+    "references": [
+        "FloodInject.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

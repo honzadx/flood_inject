@@ -1,0 +1,9 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "DebugRoslynSourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../FloodInject.SourceGen.Sample/FloodInject.SourceGen.Sample.csproj"
+    }
+  }
+}
