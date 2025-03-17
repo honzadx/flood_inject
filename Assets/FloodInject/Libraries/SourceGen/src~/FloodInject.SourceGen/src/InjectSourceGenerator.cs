@@ -15,6 +15,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
         public bool isValid;
         public bool isOverride;
         public string @namespace;
+        public string autoInjectMethod;
         public ClassDeclarationSyntax @class;
         public UsingDirectiveSyntax[] usingDirectives;
         public InjectMetadata[] fields;
@@ -47,16 +48,26 @@ public class InjectSourceGenerator : IIncrementalGenerator
         var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
         List<InjectMetadata> injectFields = new List<InjectMetadata>();
 
+        var autoInjectMethod = string.Empty;
         var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
         var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
         if (attributeArgumentList != null)
         {
-            bool.TryParse(attributeArgumentList.Arguments[0].Expression.GetFirstToken().Text, out metadata.isOverride);
+            foreach (var argument in attributeArgumentList.Arguments)
+            {
+                bool.TryParse(argument.Expression.GetFirstToken().Text, out metadata.isOverride);
+                switch (argument.Expression.ToString())
+                {
+                    case "AutoInjectType.Constructor":
+                        autoInjectMethod = $"public {syntax.Identifier.Text}()";
+                        break;
+                    case "AutoInjectType.Unity":
+                        autoInjectMethod = "protected new void Awake()";
+                        break;
+                }
+            }
         }
-        else
-        {
-            metadata.isOverride = false;
-        }
+        metadata.autoInjectMethod = autoInjectMethod;
         
         foreach (var field in allFields)
         {
@@ -108,6 +119,15 @@ public class InjectSourceGenerator : IIncrementalGenerator
         
         using (codeWriter.CreateScope(prefix: metadata.@class.Identifier.Text))
         {
+            if (!string.IsNullOrEmpty(metadata.autoInjectMethod))
+            {
+                using (codeWriter.CreateScope(metadata.autoInjectMethod))
+                {
+                    codeWriter.WriteLine("Inject();");
+                }
+                codeWriter.WriteLine();
+            }
+            
             var injectMethod = metadata.isOverride ? "public override void Inject()" : "public virtual void Inject()";
             using (codeWriter.CreateScope(prefix: injectMethod))
             {

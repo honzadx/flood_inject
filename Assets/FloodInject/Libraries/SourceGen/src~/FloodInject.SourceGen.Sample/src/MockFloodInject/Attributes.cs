@@ -9,10 +9,14 @@ public class GenerateContextAttribute : Attribute;
 public class ContextListenerAttribute : Attribute
 {
     public bool IsOverride { get; }
+    public AutoInjectType AutoInjectType { get; }
 
-    public ContextListenerAttribute(bool isOverride = false)
+    public ContextListenerAttribute(
+        bool isOverride = false, 
+        AutoInjectType autoInjectType = AutoInjectType.None)
     {
         IsOverride = isOverride;
+        AutoInjectType = autoInjectType;
     }
 }
 
