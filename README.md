@@ -83,8 +83,11 @@ public partial class KeyedDataWrapper
     - [x] Construct inject method
     - [x] Trigger injection automatically
 - [x] Handle inherited injections
+    - [ ] Handle inherited injections auto magically without isOverride?
+- [ ] Remove fully reflection
 - [ ] Too verbose
+- [ ] Code analysis
+    - [ ] Validate partial and public keywords and report warnings
 - [ ] Context inspector visualizer
-- [ ] Validate single context per type
 - [ ] Handle playmode
 - [ ] Unit testing

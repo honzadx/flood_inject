@@ -12,10 +12,11 @@ internal static class SyntaxNodeExtensions
         {
             foreach (var node in parent.ChildNodes())
             {
-                if (node is UsingDirectiveSyntax usingDirective)
+                if (node is not UsingDirectiveSyntax usingDirective)
                 {
-                    yield return usingDirective;
+                   continue;
                 }
+                yield return usingDirective;
             }
             parent = parent.Parent;
         }

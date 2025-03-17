@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,21 +9,18 @@ using Microsoft.CodeAnalysis.Text;
 [Generator]
 public class InjectSourceGenerator : IIncrementalGenerator
 {
-    struct Metadata
+    private record InjectMetadata
     {
-        public bool isValid;
-        public bool isOverride;
-        public string @namespace;
-        public string autoInjectMethod;
-        public ClassDeclarationSyntax @class;
-        public UsingDirectiveSyntax[] usingDirectives;
-        public InjectMetadata[] fields;
-    }
+        internal string FieldType { get; }
+        internal string FieldName { get; }
+        internal string Context { get; }
 
-    struct InjectMetadata
-    {
-        public FieldDeclarationSyntax field;
-        public TypeSyntax context;
+        public InjectMetadata(string fieldType, string fieldName, string context)
+        {
+            FieldType = fieldType;
+            FieldName = fieldName;
+            Context = context;
+        }
     }
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -34,40 +30,58 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 "FloodInject.Runtime.ContextListenerAttribute",
                 predicate: static (s, _) => s is ClassDeclarationSyntax,
                 transform: static (ctx, _) => Transform(ctx))
-            .Where(m => m.isValid);
+            .Where(t => t != null);
         
         context.RegisterSourceOutput(provider, Generate);
     }
 
-    private static Metadata Transform(GeneratorAttributeSyntaxContext context)
+    private static TypeModel Transform(GeneratorAttributeSyntaxContext context)
     {
-        Metadata metadata = default;
-        
         var syntax = (ClassDeclarationSyntax)context.TargetNode;
         var modifiersValid = syntax.HasModifiers(["public", "partial"]);
         var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
-        List<InjectMetadata> injectFields = new List<InjectMetadata>();
 
-        var autoInjectMethod = string.Empty;
+        if (!modifiersValid)
+        {
+            return null;
+        }
+
+        List<MethodModel> methodModelList = new();
+        List<InjectMetadata> injectMetadataList = new();
+        var injectIsOverride = false;
         var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
         var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
         if (attributeArgumentList != null)
         {
             foreach (var argument in attributeArgumentList.Arguments)
             {
-                bool.TryParse(argument.Expression.GetFirstToken().Text, out metadata.isOverride);
+                if (bool.TryParse(argument.Expression.GetFirstToken().Text, out bool isOverride))
+                {
+                    injectIsOverride = isOverride;
+                }
                 switch (argument.Expression.ToString())
                 {
                     case "AutoInjectType.Constructor":
-                        autoInjectMethod = $"public {syntax.Identifier.Text}()";
+                        methodModelList.Add(new MethodModel(
+                            keywords: ["public"],
+                            returnType: null,
+                            name: syntax.Identifier.ValueText,
+                            parameters: [],
+                            lambda: false,
+                            lines: ["Inject();"]));
                         break;
                     case "AutoInjectType.Unity":
-                        autoInjectMethod = "protected new void Awake()";
+                        methodModelList.Add(new MethodModel(
+                            keywords: ["protected", "new"],
+                            returnType: "void",
+                            name: "Start",
+                            parameters: [],
+                            lambda: false,
+                            lines: ["Inject();"]));
                         break;
                 }
             }
         }
-        metadata.autoInjectMethod = autoInjectMethod;
         
         foreach (var field in allFields)
         {
@@ -83,69 +97,60 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 .Arguments[0]
                 .Expression
                 .GetFirstChildOfType<TypeSyntax>();
-            InjectMetadata injectMetadata = default;
-            injectMetadata.field = field;
-            injectMetadata.context = type;
-            injectFields.Add(injectMetadata);
+            
+            InjectMetadata injectMetadata = new InjectMetadata(
+                fieldType: field.Declaration.Type.ToString(),
+                fieldName: field.Declaration.Variables[0].Identifier.Text, 
+                context: type.ToString());
+            injectMetadataList.Add(injectMetadata);
+        }
+
+        if (injectMetadataList.Count == 0)
+        {
+            return null;
         }
         
-        metadata.@class = syntax;
-        metadata.@namespace = syntax.GetNamespaceName();
-        metadata.usingDirectives = syntax.GetUsingDirectives().ToArray();
-        metadata.fields = injectFields.ToArray();
-        metadata.isValid = modifiersValid && metadata.fields.Length > 0;
-        return metadata;
+        string[] injectMethodLines = new string[injectIsOverride ? injectMetadataList.Count + 1 : injectMetadataList.Count];
+        injectMethodLines[injectMethodLines.Length - 1] = "base.Inject();";
+
+        int index = 0;
+        foreach (var injectMetadata in injectMetadataList)
+        {
+            injectMethodLines[index++] =
+                $"{injectMetadata.FieldName} = ContextProvider.GetContext<{injectMetadata.Context}>().Get<{injectMetadata.FieldType}>();";
+        }
+
+        var injectMethod = new MethodModel(
+            keywords: injectIsOverride ? ["public", "override"] : ["public", "virtual"],
+            returnType: "void",
+            name: "Inject",
+            parameters: [],
+            lambda: false,
+            lines: injectMethodLines
+        );
+        methodModelList.Add(injectMethod);
+
+        var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
+        var elements = methodModelList.Select(m => m as BaseTypeElementModel).ToArray();
+        
+        TypeModel typeModel = new TypeModel(
+            usings: usings,
+            @namespace: syntax.GetNamespaceName(),
+            keywords: ["partial"],
+            kind: "class",
+            name: syntax.Identifier.ValueText,
+            elements: elements);
+        
+        return typeModel;
     }
 
-    private static void Generate(SourceProductionContext context, Metadata metadata)
+    private static void Generate(SourceProductionContext context, TypeModel typeModel)
     {
         using MemoryStream sourceStream = new();
         using StreamWriter sourceStreamWriter = new StreamWriter(sourceStream);
         using CodeWriter codeWriter = new CodeWriter(sourceStreamWriter);
-
-        codeWriter.WriteLine("// <auto-generated />");
-        foreach (var usingDirective in metadata.usingDirectives)
-        {
-            codeWriter.WriteLine(usingDirective.ToFullString());
-        }
-
-        codeWriter.StartNamespace(metadata.@namespace);
-
-        foreach (var modifier in metadata.@class.Modifiers)
-        {
-            codeWriter.Write(modifier.Text + " ");
-        }
-        codeWriter.Write(metadata.@class.Keyword.Text + " ");
-        
-        using (codeWriter.CreateScope(prefix: metadata.@class.Identifier.Text))
-        {
-            if (!string.IsNullOrEmpty(metadata.autoInjectMethod))
-            {
-                using (codeWriter.CreateScope(metadata.autoInjectMethod))
-                {
-                    codeWriter.WriteLine("Inject();");
-                }
-                codeWriter.WriteLine();
-            }
-            
-            var injectMethod = metadata.isOverride ? "public override void Inject()" : "public virtual void Inject()";
-            using (codeWriter.CreateScope(prefix: injectMethod))
-            {
-                if (metadata.isOverride)
-                {
-                    codeWriter.WriteLine("base.Inject();");
-                }
-                foreach (var fieldMetadata in metadata.fields)
-                {
-                    var variable = fieldMetadata.field.Declaration.Variables[0].Identifier.Text;
-                    var type = fieldMetadata.field.Declaration.Type.ToString();
-                    codeWriter.WriteLine(variable + " = ContextProvider.GetContext(typeof(" + fieldMetadata.context + ")).Get<" + type + ">();");
-                }
-            }
-        }
-        
-        codeWriter.EndNamespace(metadata.@namespace);
+        typeModel.Build(codeWriter);
         codeWriter.Flush();
-        context.AddSource($"{metadata.@class.Identifier.Text}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
+        context.AddSource($"{typeModel.Name}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
     }
 }

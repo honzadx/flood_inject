@@ -1,0 +1,1 @@
+internal abstract record BaseTypeElementModel : BaseElementModel { }
