@@ -17,16 +17,6 @@ public partial class SceneContext
 {
     public static System.Type Type => typeof(SceneContext);
     public override System.Type ContextType => SceneContext.Type;
-
-    protected void OnEnable()
-    {
-        ContextProvider.Register(this);
-    }
-    
-    protected void OnDestroy()
-    {
-        ContextProvider.Unregister(this);
-    }
 }
 ```
 
@@ -41,7 +31,7 @@ ContextProvider.GetContext<SceneContext>().Bind(data);
 
 ```
 [ContextListener]
-public partial class DataWrapper 
+public partial class DataWrapper
 {
     [Inject(typeof(SceneContext))] Data data;
 }
@@ -81,13 +71,11 @@ public partial class KeyedDataWrapper
 
 ## TODO:
 - [x] Base context definition
-    - [x] Bind
-    - [x] Rebind
-    - [x] Unbind
+    - [x] Bind, Rebind, Unbind
+    - [x] Register, Unregister
     - [x] Get
     - [x] Reset
 - [x] Context generation
-    - [x] Automatic registration
     - [x] Compile time type getter
 - [x] Auto Injection
     - [x] Get context type
@@ -96,6 +84,7 @@ public partial class KeyedDataWrapper
     - [x] Trigger injection automatically
 - [x] Handle inherited injections
 - [ ] Too verbose
+- [ ] Context inspector visualizer
 - [ ] Validate single context per type
 - [ ] Handle playmode
 - [ ] Unit testing

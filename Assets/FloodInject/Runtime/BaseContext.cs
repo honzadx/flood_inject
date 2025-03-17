@@ -11,6 +11,16 @@ namespace FloodInject.Runtime
 
         private readonly Dictionary<Type, object> _bindings = new ();
 
+        public void Register()
+        {
+            ContextProvider.Register(this);
+        }
+    
+        public void Unregister()
+        {
+            ContextProvider.Register(this);
+        }
+        
         public void Bind<T2>(T2 value)
         {
             var key = typeof(T2);

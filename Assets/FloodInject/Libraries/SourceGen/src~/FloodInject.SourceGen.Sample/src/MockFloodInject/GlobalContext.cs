@@ -1,5 +1,5 @@
 namespace FloodInject.Runtime;
 
 [GenerateContext]
-public partial class GlobalContext : BaseContext { }
+public sealed partial class GlobalContext : BaseContext { }
 

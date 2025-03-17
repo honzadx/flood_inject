@@ -70,18 +70,6 @@ public class ContextSourceGenerator : IIncrementalGenerator
         {
             codeWriter.WriteLine("public static System.Type Type => typeof(" + metadata.@class.Identifier.Text + ");");
             codeWriter.WriteLine("public override System.Type ContextType => " + metadata.@class.Identifier.Text + ".Type;\n");
-            
-            using (codeWriter.CreateScope(prefix: "protected void OnEnable()"))
-            {
-                codeWriter.WriteLine("ContextProvider.Register(this);");
-            }
-
-            codeWriter.WriteLine();
-            
-            using (codeWriter.CreateScope(prefix: "protected void OnDestroy()"))
-            {
-                codeWriter.WriteLine("ContextProvider.Unregister(this);");
-            }
         }
         
         codeWriter.EndNamespace(metadata.@namespace);

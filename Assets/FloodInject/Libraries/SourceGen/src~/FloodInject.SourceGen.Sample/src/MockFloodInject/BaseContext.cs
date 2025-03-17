@@ -10,6 +10,16 @@ public abstract class BaseContext : ScriptableObject
 
     private readonly Dictionary<Type, object> _bindings = new ();
 
+    public void Register()
+    {
+        ContextProvider.Register(this);
+    }
+    
+    public void Unregister()
+    {
+        ContextProvider.Register(this);
+    }
+    
     public void Bind<T>(T value)
     {
         var key = typeof(T);
