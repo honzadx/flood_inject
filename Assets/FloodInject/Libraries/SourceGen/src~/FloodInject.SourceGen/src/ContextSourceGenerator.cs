@@ -21,7 +21,8 @@ public class ContextSourceGenerator : IIncrementalGenerator
     {
         _contextClasses = [];
         var provider = context.SyntaxProvider
-            .CreateSyntaxProvider(
+            .ForAttributeWithMetadataName(
+                "FloodInject.Runtime.GenerateContextAttribute",
                 predicate: static (s, _) => s is ClassDeclarationSyntax,
                 transform: static (ctx, _) => Transform(ctx))
             .Where(m => m.isValid);
@@ -29,11 +30,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(provider, Generate);
     }
 
-    private static Metadata Transform(GeneratorSyntaxContext context)
+    private static Metadata Transform(GeneratorAttributeSyntaxContext context)
     {
         Metadata metadata = default;
 
-        var syntax = (ClassDeclarationSyntax)context.Node;
+        var syntax = (ClassDeclarationSyntax)context.TargetNode;
         var isContext = syntax.HasBaseType("FloodInject.Runtime.BaseContext") || syntax.HasBaseType("BaseContext");
         var validModifiers = syntax.HasModifiers(["public", "partial"]) && !syntax.HasModifier("abstract");
         

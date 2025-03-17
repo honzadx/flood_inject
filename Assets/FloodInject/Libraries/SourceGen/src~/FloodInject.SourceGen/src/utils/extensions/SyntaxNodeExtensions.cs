@@ -88,25 +88,40 @@ internal static class SyntaxNodeExtensions
     
     public static bool HasAttribute<T>(this T self, string attributeName, GeneratorSyntaxContext context) where T : BaseTypeDeclarationSyntax
     {
-        return HasAttribute(self.AttributeLists, attributeName, context);
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
     }
     
     public static bool HasAttribute(this FieldDeclarationSyntax self, string attributeName, GeneratorSyntaxContext context)
     {
-        return HasAttribute(self.AttributeLists, attributeName, context);
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
     }
     
     public static bool HasAttribute(this MethodDeclarationSyntax self, string attributeName, GeneratorSyntaxContext context)
     {
-        return HasAttribute(self.AttributeLists, attributeName, context);
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
     }
     
-    public static bool HasAttribute(SyntaxList<AttributeListSyntax> attributeLists, string attributeName, GeneratorSyntaxContext context)
+    public static bool HasAttribute<T>(this T self, string attributeName, GeneratorAttributeSyntaxContext context) where T : BaseTypeDeclarationSyntax
+    {
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static bool HasAttribute(this FieldDeclarationSyntax self, string attributeName, GeneratorAttributeSyntaxContext context)
+    {
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static bool HasAttribute(this MethodDeclarationSyntax self, string attributeName, GeneratorAttributeSyntaxContext context)
+    {
+        return HasAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static bool HasAttribute(SyntaxList<AttributeListSyntax> attributeLists, string attributeName, SemanticModel semanticModel)
     {
         foreach (var attributeList in attributeLists)
         foreach (var attribute in attributeList.Attributes)
         {
-            if (context.SemanticModel.GetSymbolInfo(attribute).Symbol is not IMethodSymbol
+            if (semanticModel.GetSymbolInfo(attribute).Symbol is not IMethodSymbol
                 attributeSymbol)
             {
                 continue;
@@ -117,6 +132,54 @@ internal static class SyntaxNodeExtensions
             }
         }
         return false;
+    }
+    
+    public static AttributeSyntax GetAttribute<T>(this T self, string attributeName, GeneratorSyntaxContext context) where T : BaseTypeDeclarationSyntax
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute(this FieldDeclarationSyntax self, string attributeName, GeneratorSyntaxContext context)
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute(this MethodDeclarationSyntax self, string attributeName, GeneratorSyntaxContext context)
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute<T>(this T self, string attributeName, GeneratorAttributeSyntaxContext context) where T : BaseTypeDeclarationSyntax
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute(this FieldDeclarationSyntax self, string attributeName, GeneratorAttributeSyntaxContext context)
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute(this MethodDeclarationSyntax self, string attributeName, GeneratorAttributeSyntaxContext context)
+    {
+        return GetAttribute(self.AttributeLists, attributeName, context.SemanticModel);
+    }
+    
+    public static AttributeSyntax GetAttribute(SyntaxList<AttributeListSyntax> attributeLists, string attributeName, SemanticModel semanticModel)
+    {
+        foreach (var attributeList in attributeLists)
+        foreach (var attribute in attributeList.Attributes)
+        {
+            if (semanticModel.GetSymbolInfo(attribute).Symbol is not IMethodSymbol
+                attributeSymbol)
+            {
+                continue;
+            }
+            if (attributeSymbol.ContainingType.ToDisplayString() == attributeName)
+            {
+                return attribute;
+            }
+        }
+        return default;
     }
     
     public static bool HasModifiers<T>(this T self, string[] modifierNames) where T : BaseTypeDeclarationSyntax

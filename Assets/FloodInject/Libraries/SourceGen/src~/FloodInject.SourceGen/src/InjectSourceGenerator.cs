@@ -13,6 +13,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
     struct Metadata
     {
         public bool isValid;
+        public bool isOverride;
         public string @namespace;
         public ClassDeclarationSyntax @class;
         public UsingDirectiveSyntax[] usingDirectives;
@@ -28,7 +29,8 @@ public class InjectSourceGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider
-            .CreateSyntaxProvider(
+            .ForAttributeWithMetadataName(
+                "FloodInject.Runtime.ContextListenerAttribute",
                 predicate: static (s, _) => s is ClassDeclarationSyntax,
                 transform: static (ctx, _) => Transform(ctx))
             .Where(m => m.isValid);
@@ -36,14 +38,26 @@ public class InjectSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(provider, Generate);
     }
 
-    private static Metadata Transform(GeneratorSyntaxContext context)
+    private static Metadata Transform(GeneratorAttributeSyntaxContext context)
     {
         Metadata metadata = default;
-
-        var syntax = (ClassDeclarationSyntax)context.Node;
+        
+        var syntax = (ClassDeclarationSyntax)context.TargetNode;
         var modifiersValid = syntax.HasModifiers(["public", "partial"]);
         var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
         List<InjectMetadata> injectFields = new List<InjectMetadata>();
+
+        var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
+        var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
+        if (attributeArgumentList != null)
+        {
+            bool.TryParse(attributeArgumentList.Arguments[0].Expression.GetFirstToken().Text, out metadata.isOverride);
+        }
+        else
+        {
+            metadata.isOverride = false;
+        }
+        
         foreach (var field in allFields)
         {
             if (!field.HasAttribute("FloodInject.Runtime.InjectAttribute", context))
@@ -55,10 +69,9 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 .GetFirstChildOfType<AttributeListSyntax>()
                 .GetFirstChildOfType<AttributeSyntax>()
                 .GetFirstChildOfType<AttributeArgumentListSyntax>()
-                .GetFirstChildOfType<AttributeArgumentSyntax>()
-                .GetFirstChildOfType<ExpressionSyntax>()
+                .Arguments[0]
+                .Expression
                 .GetFirstChildOfType<TypeSyntax>();
-            
             InjectMetadata injectMetadata = default;
             injectMetadata.field = field;
             injectMetadata.context = type;
@@ -95,8 +108,13 @@ public class InjectSourceGenerator : IIncrementalGenerator
         
         using (codeWriter.CreateScope(prefix: metadata.@class.Identifier.Text))
         {
-            using (codeWriter.CreateScope(prefix: "public void Inject()"))
+            var injectMethod = metadata.isOverride ? "public override void Inject()" : "public virtual void Inject()";
+            using (codeWriter.CreateScope(prefix: injectMethod))
             {
+                if (metadata.isOverride)
+                {
+                    codeWriter.WriteLine("base.Inject();");
+                }
                 foreach (var fieldMetadata in metadata.fields)
                 {
                     var variable = fieldMetadata.field.Declaration.Variables[0].Identifier.Text;
