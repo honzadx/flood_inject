@@ -1,11 +1,13 @@
+using System.Collections.Immutable;
+
 internal record MethodModel : BaseTypeElementModel
 {
-    internal string[] Keywords { get; }
-    internal string ReturnType { get; }
-    internal string Name { get; }
-    internal VariableModel[] Parameters { get; }
-    internal bool Lambda { get; }
-    internal string[] Lines { get; }
+    public ImmutableArray<string> Keywords { get; }
+    public string ReturnType { get; }
+    public string Name { get; }
+    public ImmutableArray<VariableModel> Parameters { get; }
+    public bool Lambda { get; }
+    public string[] Lines { get; }
 
     public MethodModel(
         string[] keywords, 
@@ -15,10 +17,10 @@ internal record MethodModel : BaseTypeElementModel
         bool lambda,
         string[] lines)
     {
-        Name = name;
+        Keywords = ImmutableArray.Create(keywords);
         ReturnType = returnType;
-        Keywords = keywords;
-        Parameters = parameters;
+        Name = name;
+        Parameters = ImmutableArray.Create(parameters);
         Lambda = lambda;
         Lines = lines;
     }

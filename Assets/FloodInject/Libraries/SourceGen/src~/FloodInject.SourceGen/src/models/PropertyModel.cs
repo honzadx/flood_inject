@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
+
 internal record PropertyModel : BaseTypeElementModel
 {
-    internal string[] Keywords { get; }
+    internal ImmutableArray<string> Keywords { get; }
     internal string Type { get; }
     internal string Name { get; }
     internal string ReturnValue { get; }
@@ -11,7 +13,7 @@ internal record PropertyModel : BaseTypeElementModel
         string name,
         string returnValue)
     {
-        Keywords = keywords;
+        Keywords = ImmutableArray.Create(keywords);
         Type = type;
         Name = name;
         ReturnValue = returnValue;

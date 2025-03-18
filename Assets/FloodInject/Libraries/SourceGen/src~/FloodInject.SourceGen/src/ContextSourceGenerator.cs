@@ -39,11 +39,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
             name: syntax.Identifier.Text,
             elements: 
             [
-                new PropertyModel(
-                    keywords: ["public", "static"],
+                new FieldModel(
+                    keywords: ["public", "static", "readonly"],
                     name: "Type",
                     type: "global::System.Type",
-                    returnValue: $"typeof({syntax.Identifier.Text})"),
+                    value: $"typeof({syntax.Identifier.Text})"),
                 new PropertyModel(
                     keywords: ["public", "override"],
                     name: "ContextType",

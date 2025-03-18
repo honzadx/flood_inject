@@ -1,7 +1,7 @@
 internal record VariableModel : BaseElementModel
 {
-    internal string Name { get; }
-    internal string Type { get; }
+    public string Name { get; }
+    public string Type { get; }
 
     public VariableModel(string name, string type)
     {

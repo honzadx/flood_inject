@@ -1,8 +1,10 @@
+using System.Collections.Immutable;
+
 internal record TypeModel
 {
-    internal string[] Usings { get; }
+    internal ImmutableArray<string> Usings { get; }
     internal string Namespace { get; }
-    internal string[] Keywords { get; }
+    internal ImmutableArray<string> Keywords { get; }
     internal string Kind { get; }
     internal string Name { get; }
     internal BaseTypeElementModel[] Elements { get; }
@@ -15,11 +17,11 @@ internal record TypeModel
         string name, 
         BaseTypeElementModel[] elements)
     {
-        Usings = usings;
+        Usings = ImmutableArray.Create(usings);
         Namespace = @namespace;
-        Name = name;
+        Keywords = ImmutableArray.Create(keywords);
         Kind = kind;
-        Keywords = keywords;
+        Name = name;
         Elements = elements;
     }
 
