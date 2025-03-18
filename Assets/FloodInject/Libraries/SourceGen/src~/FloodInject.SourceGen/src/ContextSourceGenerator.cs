@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -32,6 +31,7 @@ public class ContextSourceGenerator : IIncrementalGenerator
         }
 
         TypeModel typeModel = new TypeModel(
+            pragmaDisables: [],
             usings: ["global::FloodInject.Runtime"],
             @namespace: syntax.GetNamespaceName(),
             keywords: ["partial"],

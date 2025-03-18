@@ -18,7 +18,7 @@ namespace FloodInject.Runtime
     
         public void Unregister()
         {
-            ContextProvider.Register(this);
+            ContextProvider.Unregister(this);
         }
         
         public void Bind<T>(T value)

@@ -19,7 +19,7 @@ namespace FloodInject.Runtime
 
         public static T GetContext<T>() where T : BaseContext
         {
-            return (T)_contexts[typeof(T)];
+            return _contexts.TryGetValue(typeof(T), out BaseContext baseContext) ? baseContext as T : null;
         }
 
         public static GlobalContext GetContext()

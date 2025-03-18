@@ -127,6 +127,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
         var elements = methodModelList.Select(m => m as BaseTypeElementModel).ToArray();
         
         TypeModel typeModel = new TypeModel(
+            pragmaDisables: [ "CS0109" ],
             usings: usings,
             @namespace: syntax.GetNamespaceName(),
             keywords: ["partial"],
