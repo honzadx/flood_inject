@@ -3,11 +3,11 @@ using System.Collections.Immutable;
 internal record TypeModel
 {
     internal ImmutableArray<string> Usings { get; }
-    internal string Namespace { get; }
-    internal ImmutableArray<string> Keywords { get; }
-    internal string Kind { get; }
-    internal string Name { get; }
-    internal BaseTypeElementModel[] Elements { get; }
+    public string Namespace { get; }
+    public ImmutableArray<string> Keywords { get; }
+    public string Kind { get; }
+    public string Name { get; }
+    public BaseTypeElementModel[] Elements { get; }
 
     public TypeModel(
         string[] usings,
