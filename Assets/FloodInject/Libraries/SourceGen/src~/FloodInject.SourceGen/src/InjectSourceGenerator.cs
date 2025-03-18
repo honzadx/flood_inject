@@ -9,18 +9,11 @@ using Microsoft.CodeAnalysis.Text;
 [Generator]
 public class InjectSourceGenerator : IIncrementalGenerator
 {
-    private record InjectMetadata
+    private record InjectMetadata(string FieldType, string FieldName, string Context)
     {
-        internal string FieldType { get; }
-        internal string FieldName { get; }
-        internal string Context { get; }
-
-        public InjectMetadata(string fieldType, string fieldName, string context)
-        {
-            FieldType = fieldType;
-            FieldName = fieldName;
-            Context = context;
-        }
+        internal string FieldType { get; } = FieldType;
+        internal string FieldName { get; } = FieldName;
+        internal string Context { get; } = Context;
     }
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -99,9 +92,9 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 .GetFirstChildOfType<TypeSyntax>();
             
             InjectMetadata injectMetadata = new InjectMetadata(
-                fieldType: field.Declaration.Type.ToString(),
-                fieldName: field.Declaration.Variables[0].Identifier.Text, 
-                context: type.ToString());
+                FieldType: field.Declaration.Type.ToString(),
+                FieldName: field.Declaration.Variables[0].Identifier.Text, 
+                Context: type.ToString());
             injectMetadataList.Add(injectMetadata);
         }
 

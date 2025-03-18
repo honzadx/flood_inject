@@ -21,10 +21,10 @@ namespace FloodInject.Runtime
         {
             return (T)_contexts[typeof(T)];
         }
-        
-        public static BaseContext GetContext(Type type)
+
+        public static GlobalContext GetContext()
         {
-            return _contexts[type];
+            return (GlobalContext)_contexts[typeof(GlobalContext)];
         }
     }
 }

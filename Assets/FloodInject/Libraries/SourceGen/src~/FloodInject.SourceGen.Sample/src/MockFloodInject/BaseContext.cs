@@ -2,70 +2,63 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FloodInject.Runtime;
-
-public abstract class BaseContext : ScriptableObject
+namespace FloodInject.Runtime
 {
-    public abstract System.Type ContextType { get; }
-
-    private readonly Dictionary<Type, object> _bindings = new ();
-
-    public void Register()
+    public abstract class BaseContext : ScriptableObject
     {
-        ContextProvider.Register(this);
-    }
+        public abstract System.Type ContextType { get; }
+
+        private readonly Dictionary<Type, BaseContract> _contracts = new ();
+
+        public void Register()
+        {
+            ContextProvider.Register(this);
+        }
     
-    public void Unregister()
-    {
-        ContextProvider.Register(this);
-    }
-    
-    public void Bind<T>(T value)
-    {
-        var key = typeof(T);
-        _bindings.Add(key, value);
-    }
+        public void Unregister()
+        {
+            ContextProvider.Register(this);
+        }
         
-    public void Bind<T>(Type key, T value)
-    {
-        _bindings.Add(key, value);
-    }
+        public void Bind<T>(T value)
+        {
+            var key = typeof(T);
+            _contracts.Add(key, new DirectContract<T>(value));
+        }
 
-    public void Rebind<T>(T value)
-    {
-        var key = typeof(T);
-        _bindings[key] = value;
-    }
+        public void Bind<T>(Func<T> factoryMethod)
+        {
+            var key = typeof(T);
+            _contracts.Add(key, new TransientContract<T>(factoryMethod));
+        }
+
+        public void Rebind<T>(T value)
+        {
+            var key = typeof(T);
+            _contracts[key] = new DirectContract<T>(value);
+        }
         
-    public void Rebind<T>(Type key, T value)
-    {
-        _bindings[key] = value;
-    }
-
-    public void Unbind<T>()
-    {
-        var key = typeof(T);
-        _bindings.Remove(key);
-    }
+        public void Rebind<T>(Func<T> factoryMethod)
+        {
+            var key = typeof(T);
+            _contracts[key] = new TransientContract<T>(factoryMethod);
+        }
         
-    public void Unbind(Type key)
-    {
-        _bindings.Remove(key);
-    }
-
-    public T Get<T>()
-    {
-        var key = typeof(T);
-        return (T)_bindings[key];
-    }
+        public void Unbind<T>()
+        {
+            var key = typeof(T);
+            _contracts.Remove(key);
+        }
         
-    public object? Get<T>(Type key)
-    {
-        return (T)_bindings[key];
-    }
-
-    public void Reset()
-    {
-        _bindings.Clear();
+        public T Get<T>()
+        {
+            var key = typeof(T);
+            return _contracts[key].Fulfill<T>();
+        }
+        
+        public void Reset()
+        {
+            _contracts.Clear();
+        }
     }
 }

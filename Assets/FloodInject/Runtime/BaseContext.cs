@@ -9,7 +9,7 @@ namespace FloodInject.Runtime
     {
         public abstract System.Type ContextType { get; }
 
-        private readonly Dictionary<Type, object> _bindings = new ();
+        private readonly Dictionary<Type, BaseContract> _contracts = new ();
 
         public void Register()
         {
@@ -21,59 +21,49 @@ namespace FloodInject.Runtime
             ContextProvider.Register(this);
         }
         
-        public void Bind<T2>(T2 value)
+        public void Bind<T>(T value)
         {
-            var key = typeof(T2);
-            Assert.IsTrue(!_bindings.ContainsKey(key));
-            _bindings.Add(key, value);
-        }
-        
-        public void Bind<T2>(Type key, T2 value)
-        {
-            Assert.IsTrue(!_bindings.ContainsKey(key));
-            _bindings.Add(key, value);
+            var key = typeof(T);
+            Assert.IsTrue(!_contracts.ContainsKey(key));
+            _contracts.Add(key, new DirectContract<T>(value));
         }
 
-        public void Rebind<T2>(T2 value)
+        public void Bind<T>(Func<T> factoryMethod)
         {
-            var key = typeof(T2);
-            _bindings[key] = value;
-        }
-        
-        public void Rebind<T2>(Type key, T2 value)
-        {
-            _bindings[key] = value;
+            var key = typeof(T);
+            Assert.IsTrue(!_contracts.ContainsKey(key));
+            _contracts.Add(key, new TransientContract<T>(factoryMethod));
         }
 
-        public void Unbind<T2>()
+        public void Rebind<T>(T value)
         {
-            var key = typeof(T2);
-            Assert.IsTrue(_bindings.ContainsKey(key));
-            _bindings.Remove(key);
+            var key = typeof(T);
+            _contracts[key] = new DirectContract<T>(value);
         }
         
-        public void Unbind(Type key)
+        public void Rebind<T>(Func<T> factoryMethod)
         {
-            Assert.IsTrue(_bindings.ContainsKey(key));
-            _bindings.Remove(key);
-        }
-
-        public T2 Get<T2>()
-        {
-            var key = typeof(T2);
-            Assert.IsTrue(_bindings.ContainsKey(key));
-            return (T2)_bindings[key];
+            var key = typeof(T);
+            _contracts[key] = new TransientContract<T>(factoryMethod);
         }
         
-        public object Get<T2>(Type key)
+        public void Unbind<T>()
         {
-            Assert.IsTrue(_bindings.ContainsKey(key));
-            return (T2)_bindings[key];
+            var key = typeof(T);
+            Assert.IsTrue(_contracts.ContainsKey(key));
+            _contracts.Remove(key);
+        }
+        
+        public T Get<T>()
+        {
+            var key = typeof(T);
+            Assert.IsTrue(_contracts.ContainsKey(key));
+            return _contracts[key].Fulfill<T>();
         }
         
         public void Reset()
         {
-            _bindings.Clear();
+            _contracts.Clear();
         }
     }
 }

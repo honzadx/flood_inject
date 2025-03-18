@@ -1,8 +1,9 @@
-namespace FloodInject.Runtime;
-
-public enum AutoInjectType
+namespace FloodInject.Runtime
 {
-    None = 0,
-    Constructor = 1,
-    Unity = 2
+    public enum AutoInjectType
+    {
+        None = 0,
+        Constructor = 1,
+        Unity = 2
+    }
 }

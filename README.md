@@ -23,8 +23,11 @@ public partial class SceneContext
 2. Bind, Rebind, Unbind, Get, Reset functionality
 
 ```
-var data = new Data();
+// Direct contract will be generated on the backend
 ContextProvider.GetContext<SceneContext>().Bind(data);
+
+// Transient contract will be generated on the backend
+ContextProvider.GetContext<SceneContext>().Rebind(() => new Data());
 ```
 
 3. Auto injection from ContextProvider
@@ -84,6 +87,13 @@ public partial class KeyedDataWrapper
     - [x] Trigger injection automatically
 - [x] Handle inherited injections
     - [ ] Handle inherited injections auto magically without isOverride?
+- [x] Source gen backend rewrite to record models
+- [x] Context backend rewrite to use contracts instead of instances
+    - [x] Fulfill() method will return requested service
+    - [x] Direct contract -> bind instances
+    - [x] Transient contract -> bind factoryMethod
+- [ ] Record models conversion from DeclarationSyntax
+- [ ] Generated class documentation
 - [ ] Remove fully reflection
 - [ ] Too verbose
 - [ ] Code analysis

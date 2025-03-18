@@ -1,3 +1,4 @@
+using System;
 using FloodInject.Runtime;
 using UnityEngine;
 
@@ -30,5 +31,6 @@ public class EnvironmentBinding
     public void Bind(Environment environment)
     {
         ContextProvider.GetContext<EnvironmentContext>().Rebind(environment);
+        ContextProvider.GetContext<EnvironmentContext>().Rebind(static () => new Environment());
     }
 }
