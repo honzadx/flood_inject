@@ -3,18 +3,26 @@ using System;
 namespace FloodInject.Runtime
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class GenerateContextAttribute : Attribute { }
+    public class GenerateContextAttribute : Attribute
+    {
+        public ContextType Definition { get; }
+
+        public GenerateContextAttribute(ContextType definition)
+        {
+            Definition = definition;
+        }
+    }
     
     [AttributeUsage(AttributeTargets.Class)]
     public class ContextListenerAttribute : Attribute
     {
         public bool IsOverride { get; }
-        public AutoInjectType AutoInjectType { get; }
+        public AutoInject AutoInject { get; }
 
-        public ContextListenerAttribute(bool isOverride = false, AutoInjectType autoInjectType = AutoInjectType.None)
+        public ContextListenerAttribute(bool isOverride = false, AutoInject autoInject = AutoInject.None)
         {
             IsOverride = isOverride;
-            AutoInjectType = autoInjectType;
+            AutoInject = autoInject;
         }
     }
     

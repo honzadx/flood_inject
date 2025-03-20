@@ -21,8 +21,17 @@ namespace LocalMultiplayer.Runtime
             _playButton.ButtonPressedEvent += OnPLayButtonPressed;
         }
 
-        private void OnStateChanged(int playerIndex, CharacterSelectionElement.State newState)
+        private void OnStateChanged(int playerIndex, CharacterSelectionElement.State newState, CharacterTemplateSO characterTemplate)
         {
+            BaseContext context = playerIndex switch
+            {
+                1 => ContextProvider<Player1Context>.GetContext(),
+                2 => ContextProvider<Player2Context>.GetContext(),
+                3 => ContextProvider<Player3Context>.GetContext(),
+                4 => ContextProvider<Player4Context>.GetContext(),
+                _ => throw new IndexOutOfRangeException($"Received invalid player index {playerIndex}")
+            };
+            context.Rebind(characterTemplate);
             RefreshElement();
         }
 
@@ -52,33 +61,13 @@ namespace LocalMultiplayer.Runtime
 
         private void OnPLayButtonPressed()
         {
-            ContextProvider.GetContext().Get<GameScenesManager>().TransitionToScene("1_Game");
+            ContextProvider<GameContext>.GetContext().Get<GameScenesManager>().TransitionToScene("1_Game");
         }
 
         private void OnMenuButtonPressed()
         {
             _mainMenuScreen.gameObject.SetActive(true);
             gameObject.SetActive(false);
-        }
-        
-        public void OnSelectCharacter(int playerIndex, CharacterTemplateSO characterTemplate)
-        {
-            switch (playerIndex)
-            {
-                case 1:
-                    ContextProvider.GetContext<Player1Context>().Rebind(characterTemplate);
-                    break;
-                case 2:
-                    ContextProvider.GetContext<Player2Context>().Rebind(characterTemplate);
-                    break;
-                case 3:
-                    ContextProvider.GetContext<Player3Context>().Rebind(characterTemplate);
-                    break;
-                case 4:
-                    ContextProvider.GetContext<Player4Context>().Rebind(characterTemplate);
-                    break;
-                default: throw new IndexOutOfRangeException($"Received invalid player index {playerIndex}");
-            }
         }
     }
 }

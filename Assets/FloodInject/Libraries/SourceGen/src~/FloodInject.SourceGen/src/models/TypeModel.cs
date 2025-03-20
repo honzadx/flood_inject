@@ -8,6 +8,7 @@ internal record TypeModel
     public ImmutableArray<string> Keywords { get; }
     public string Kind { get; }
     public string Name { get; }
+    public string Implements { get; }
     public BaseTypeElementModel[] Elements { get; }
 
     public TypeModel(
@@ -17,6 +18,7 @@ internal record TypeModel
         string[] keywords, 
         string kind,
         string name, 
+        string implements,
         BaseTypeElementModel[] elements)
     {
         PragmaDisables = ImmutableArray.Create(pragmaDisables);
@@ -25,6 +27,7 @@ internal record TypeModel
         Keywords = ImmutableArray.Create(keywords);
         Kind = kind;
         Name = name;
+        Implements = implements;
         Elements = elements;
     }
 
@@ -48,13 +51,23 @@ internal record TypeModel
         {
             codeWriter.Write($"{keyword} ");
         }
-        using (codeWriter.CreateScope($"{Kind} {Name}"))
+
+        var typeDeclaration = string.IsNullOrEmpty(Implements) ? $"{Kind} {Name}" : $"{Kind} {Name} : {Implements}";
+        if (Elements.Length > 0)
         {
-            foreach (var element in Elements)
+            using (codeWriter.CreateScope(typeDeclaration))
             {
-                element.Build(codeWriter);
+                foreach (var element in Elements)
+                {
+                    element.Build(codeWriter);
+                }
             }
         }
+        else
+        {
+            codeWriter.WriteLine($$"""{{typeDeclaration}} { }""");
+        }
+        
         codeWriter.EndNamespace(Namespace);
         foreach (var pragmaDisable in PragmaDisables)
         {

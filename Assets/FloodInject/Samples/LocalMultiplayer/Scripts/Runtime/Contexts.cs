@@ -1,6 +1,5 @@
 using System;
 using FloodInject.Runtime;
-using UnityEngine;
 
 namespace LocalMultiplayer.Runtime
 {
@@ -8,14 +7,16 @@ namespace LocalMultiplayer.Runtime
     /// 4 PLAYER LOCAL CO-OP GAME
     /// </summary>
     
-    [GenerateContext, CreateAssetMenu(menuName = "LocalMultiplayer/Context/Player1Context")]
-    public partial class Player1Context : BaseContext { }
-    [GenerateContext, CreateAssetMenu(menuName = "LocalMultiplayer/Context/Player2Context")]
-    public partial class Player2Context : BaseContext { }
-    [GenerateContext, CreateAssetMenu(menuName = "LocalMultiplayer/Context/Player3Context")]
-    public partial class Player3Context : BaseContext { }
-    [GenerateContext, CreateAssetMenu(menuName = "LocalMultiplayer/Context/Player4Context")]
-    public partial class Player4Context : BaseContext { }
+    [GenerateContext(ContextType.Volatile)]
+    public partial class GameContext { }
+    [GenerateContext(ContextType.Volatile)]
+    public partial class Player1Context { }
+    [GenerateContext(ContextType.Volatile)]
+    public partial class Player2Context { }
+    [GenerateContext(ContextType.Volatile)]
+    public partial class Player3Context { }
+    [GenerateContext(ContextType.Volatile)]
+    public partial class Player4Context { }
     
     public static class PlayerContext 
     {
@@ -23,10 +24,10 @@ namespace LocalMultiplayer.Runtime
         {
             return playerIndex switch
             {
-                1 => ContextProvider.GetContext<Player1Context>(),
-                2 => ContextProvider.GetContext<Player2Context>(),
-                3 => ContextProvider.GetContext<Player3Context>(),
-                4 => ContextProvider.GetContext<Player4Context>(),
+                1 => ContextProvider<Player1Context>.GetContext(),
+                2 => ContextProvider<Player2Context>.GetContext(),
+                3 => ContextProvider<Player3Context>.GetContext(),
+                4 => ContextProvider<Player4Context>.GetContext(),
                 _ => throw new IndexOutOfRangeException($"Player index {playerIndex} is not supported")
             };
         }

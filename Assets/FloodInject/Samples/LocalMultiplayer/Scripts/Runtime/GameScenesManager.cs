@@ -9,10 +9,10 @@ namespace LocalMultiplayer.Runtime
     {
         public void Start()
         {
-            ContextProvider.GetContext<GlobalContext>().Bind(this);
+            ContextProvider<GameContext>.GetContext().Bind(this);
             if (SceneManager.sceneCount == 1)
             {
-                SceneManager.LoadSceneAsync(1);
+                SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
             }
         }
         

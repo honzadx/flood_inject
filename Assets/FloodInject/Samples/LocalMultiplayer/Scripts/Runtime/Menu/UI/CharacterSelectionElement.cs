@@ -13,7 +13,7 @@ namespace LocalMultiplayer.Runtime
     
     public class CharacterSelectionElement : MonoBehaviour
     {
-        public event Action<int, State> StateChangedEvent;
+        public event Action<int, State, CharacterTemplateSO> StateChangedEvent;
         
         public enum State
         {
@@ -59,7 +59,7 @@ namespace LocalMultiplayer.Runtime
         private void SetState(State newState)
         {
             _currentState = newState;
-            StateChangedEvent?.Invoke(_playerIndex, _currentState);
+            StateChangedEvent?.Invoke(_playerIndex, _currentState, _characterTemplates[_currentCharacterIndex]);
             RefreshElement();
         }
         

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using FloodInject.SourceGen.models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -39,9 +40,9 @@ public class InjectSourceGenerator : IIncrementalGenerator
             return null;
         }
 
-        List<MethodModel> methodModelList = new();
+        List<BaseTypeElementModel> elementModelList = new();
         List<InjectMetadata> injectMetadataList = new();
-        var injectIsOverride = false;
+        var constructIsOverride = false;
         var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
         var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
         if (attributeArgumentList != null)
@@ -50,27 +51,19 @@ public class InjectSourceGenerator : IIncrementalGenerator
             {
                 if (bool.TryParse(argument.Expression.GetFirstToken().Text, out bool isOverride))
                 {
-                    injectIsOverride = isOverride;
+                    constructIsOverride = isOverride;
                 }
                 switch (argument.Expression.ToString())
                 {
-                    case "AutoInjectType.Constructor":
-                        methodModelList.Add(new MethodModel(
+                    case "AutoInject.Constructor":
+                        elementModelList.Add(new MethodModel(
                             keywords: ["public"],
                             returnType: null,
                             name: syntax.Identifier.ValueText,
                             parameters: [],
                             lambda: false,
-                            lines: ["Inject();"]));
-                        break;
-                    case "AutoInjectType.Unity":
-                        methodModelList.Add(new MethodModel(
-                            keywords: ["protected", "new"],
-                            returnType: "void",
-                            name: "Start",
-                            parameters: [],
-                            lambda: false,
-                            lines: ["Inject();"]));
+                            lines: ["Construct();"]));
+                        elementModelList.Add(new NewLineModel());
                         break;
                 }
             }
@@ -102,29 +95,47 @@ public class InjectSourceGenerator : IIncrementalGenerator
         {
             return null;
         }
-        
-        string[] injectMethodLines = new string[injectIsOverride ? injectMetadataList.Count + 1 : injectMetadataList.Count];
-        injectMethodLines[injectMethodLines.Length - 1] = "base.Inject();";
 
-        int index = 0;
+        List<string> methodLines = new List<string>();
+        methodLines.AddRange(["PreConstruct();", ""]);
+        if (constructIsOverride)
+        {
+            methodLines.Add("base.Construct();");
+        }
         foreach (var injectMetadata in injectMetadataList)
         {
-            injectMethodLines[index++] =
-                $"{injectMetadata.FieldName} = ContextProvider.GetContext<{injectMetadata.Context}>().Get<{injectMetadata.FieldType}>();";
+            methodLines.Add($"{injectMetadata.FieldName} = ContextProvider<{injectMetadata.Context}>.GetContext().Get<{injectMetadata.FieldType}>();");
         }
+        methodLines.AddRange(["", "PostConstruct();"]);
 
-        var injectMethod = new MethodModel(
-            keywords: injectIsOverride ? ["public", "override"] : ["public", "virtual"],
-            returnType: "void",
-            name: "Inject",
-            parameters: [],
-            lambda: false,
-            lines: injectMethodLines
-        );
-        methodModelList.Add(injectMethod);
+        elementModelList.AddRange(
+        [
+            new MethodModel(
+                keywords: constructIsOverride ? ["public", "override"] : ["public", "virtual"],
+                returnType: "void",
+                name: "Construct",
+                parameters: [],
+                lambda: false,
+                lines: methodLines.ToArray()),
+            new NewLineModel(),
+            new MethodModel(
+                keywords: [ "partial" ], 
+                returnType: "void",
+                name: "PreConstruct",
+                parameters: [],
+                lambda: false,
+                lines: []),
+            new MethodModel(
+                keywords: [ "partial" ], 
+                returnType: "void",
+                name: "PostConstruct",
+                parameters: [],
+                lambda: false,
+                lines: [])
+        ]);
 
-        var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
-        var elements = methodModelList.Select(m => m as BaseTypeElementModel).ToArray();
+        var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).Append("global::FloodInject.Runtime").ToArray();
+        var elements = elementModelList.Select(m => m as BaseTypeElementModel).ToArray();
         
         TypeModel typeModel = new TypeModel(
             pragmaDisables: [ "CS0109" ],
@@ -133,6 +144,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
             keywords: ["partial"],
             kind: "class",
             name: syntax.Identifier.ValueText,
+            implements: null,
             elements: elements);
         
         return typeModel;

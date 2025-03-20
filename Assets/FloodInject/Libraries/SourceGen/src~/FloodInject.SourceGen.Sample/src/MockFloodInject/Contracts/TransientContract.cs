@@ -2,22 +2,20 @@ using System;
 
 namespace FloodInject.Runtime
 {
-    internal sealed class TransientContract<TService> : BaseContract
+    internal sealed class TransientContract<TInstance> : IContract
     {
-        private Func<TService> _factoryMethod;
+        private readonly Func<TInstance> _factoryMethod;
         
-        public TransientContract(Func<TService> factoryMethod)
+        public TransientContract(Func<TInstance> factoryMethod)
         {
             _factoryMethod = factoryMethod;
         }
 
-        public override ContractType ContractType => ContractType.Transient;
-
-        public override TBaseService Fulfill<TBaseService>()
+        public TBaseInstance Fulfill<TBaseInstance>()
         {
-            if (_factoryMethod() is not TBaseService result)
+            if (_factoryMethod() is not TBaseInstance result)
             {
-                throw new Exception($"Factory method returned unexpected type {typeof(TService)}");
+                throw new Exception($"Factory method returned unexpected type {typeof(TInstance)}");
             }
             return result;
         }
