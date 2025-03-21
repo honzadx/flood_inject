@@ -1,10 +1,10 @@
-using System;
+using System.Runtime.CompilerServices;
 
 namespace FloodInject.Runtime
 {
     internal sealed class InstanceContract<TInstance> : IContract
     {
-        private readonly TInstance _instance;
+        private TInstance _instance;
 
         public InstanceContract(TInstance instance)
         {
@@ -13,11 +13,7 @@ namespace FloodInject.Runtime
 
         public TBaseInstance Fulfill<TBaseInstance>()
         {
-            if (_instance is not TBaseInstance baseService)
-            {
-                throw new Exception($"Service returned unexpected type {typeof(TInstance)}");
-            }
-            return baseService;
+            return Unsafe.As<TInstance, TBaseInstance>(ref _instance);
         }
     }
 }

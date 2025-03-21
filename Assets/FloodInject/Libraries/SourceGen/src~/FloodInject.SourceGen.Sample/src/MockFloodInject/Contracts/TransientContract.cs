@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace FloodInject.Runtime
 {
@@ -13,11 +14,8 @@ namespace FloodInject.Runtime
 
         public TBaseInstance Fulfill<TBaseInstance>()
         {
-            if (_factoryMethod() is not TBaseInstance result)
-            {
-                throw new Exception($"Factory method returned unexpected type {typeof(TInstance)}");
-            }
-            return result;
+			var instance = _factoryMethod();
+            return Unsafe.As<TInstance, TBaseInstance>(ref instance);
         }
     }
 }
