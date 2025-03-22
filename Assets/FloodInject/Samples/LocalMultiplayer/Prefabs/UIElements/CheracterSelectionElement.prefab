@@ -373,6 +373,7 @@ GameObject:
   - component: {fileID: 5393455622807108391}
   - component: {fileID: 8253268864742149416}
   - component: {fileID: 530660905422738311}
+  - component: {fileID: 65684499956660767}
   - component: {fileID: 328049900192589912}
   m_Layer: 5
   m_Name: CheracterSelectionElement
@@ -423,11 +424,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a0710f8e972a24653998879aa16d82a8, type: 2}
   - {fileID: 11400000, guid: 190efeb58fef3461daae542f479dd2cb, type: 2}
   - {fileID: 11400000, guid: 809ec3915df4145f3b2c7d6f822c07c7, type: 2}
-  - {fileID: 11400000, guid: fb034b5d9a98648bbb307dc31c2e76d1, type: 2}
   _overlay: {fileID: 3223611152709609508}
   _colorTag: {fileID: 344502436632081704}
   _inputIconElement: {fileID: 5113219704259804980}
   _playerIndex: -1
+  _material: {fileID: 2100000, guid: 0c08a1f1955984c01b3d57f1bc4713dd, type: 2}
 --- !u!222 &530660905422738311
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -436,6 +437,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6093758324884320694}
   m_CullTransparentMesh: 1
+--- !u!114 &65684499956660767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6093758324884320694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &328049900192589912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -535,6 +566,10 @@ PrefabInstance:
     - target: {fileID: 2040048683330046111, guid: 67b934ad6c2894154a1f1d0ceaabc12d, type: 3}
       propertyPath: m_Name
       value: InputIconElement
+      objectReference: {fileID: 0}
+    - target: {fileID: 4339937719682312432, guid: 67b934ad6c2894154a1f1d0ceaabc12d, type: 3}
+      propertyPath: m_Maskable
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7365079700866349507, guid: 67b934ad6c2894154a1f1d0ceaabc12d, type: 3}
       propertyPath: m_Pivot.x

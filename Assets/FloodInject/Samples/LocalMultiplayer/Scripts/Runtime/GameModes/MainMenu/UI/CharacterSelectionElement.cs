@@ -8,6 +8,8 @@ namespace LocalMultiplayer.Runtime
 {
     public class CharacterSelectionElement : MonoBehaviour
     {
+        private static readonly int _toColorPropertyID = Shader.PropertyToID("_ToColor");
+        
         public event Action<int, State> StateChangedEvent;
         
         public enum State
@@ -30,9 +32,11 @@ namespace LocalMultiplayer.Runtime
         [SerializeField] private Image _colorTag;
         [SerializeField] private InputIconElement _inputIconElement;
         [SerializeField] private int _playerIndex = -1;
+        [SerializeField] private Material _material;
 
         private State _currentState = State.Inactive;
         private int _currentCharacterIndex;
+        private Material _materialInstance; 
         
         public State CurrentState => _currentState;
 
@@ -43,11 +47,16 @@ namespace LocalMultiplayer.Runtime
                 CharacterTemplate: _characterTemplates[_currentCharacterIndex]);
         }
 
+        protected void Start()
+        {
+            RefreshColor();
+        }
+
         protected void OnEnable()
         {
             StartListeningToPlayerInput();
+            Randomize();
             RefreshElement();
-            RefreshColorTag();
         }
 
         protected void OnDisable()
@@ -68,11 +77,20 @@ namespace LocalMultiplayer.Runtime
             _inputIconElement.Init(inputDevice);
         }
 
-        private void RefreshColorTag()
+        private void Randomize()
         {
-            _colorTag.color = ContextProvider<GameContext>.Ctx
+            _currentCharacterIndex = UnityEngine.Random.Range(0, _characterTemplates.Length);
+        }
+
+        private void RefreshColor()
+        {
+            var playerColor = ContextProvider<GameContext>.Ctx
                 .Get<GameConfigSO>()
                 .PlayerColors[_playerIndex];
+            _materialInstance = new Material(_material);
+            _materialInstance.SetColor(_toColorPropertyID, playerColor);
+            _colorTag.color = playerColor;
+            _characterPortrait.material = _materialInstance;
         }
 
         private void RefreshElement()
