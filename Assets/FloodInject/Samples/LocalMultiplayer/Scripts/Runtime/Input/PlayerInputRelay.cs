@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 
 namespace LocalMultiplayer.Runtime
 {
+    /// <summary>
+    /// Each playerIndex has a matching relay that always exist in the context of the application 
+    /// </summary>
     public class PlayerInputRelay
     {
         public event Action<InputDevice> InputDeviceChangedEvent;
@@ -11,15 +14,13 @@ namespace LocalMultiplayer.Runtime
         public event Action Action1Event;
         public event Action Action2Event;
         
-        public readonly int playerIndex;
-
-        private InputDevice _inputDevice;
+        public readonly int PlayerIndex;
         
-        public InputDevice InputDevice => _inputDevice;
+        public InputDevice InputDevice { get; private set; }
 
         public PlayerInputRelay(int playerIndex)
         {
-            this.playerIndex = playerIndex;
+            this.PlayerIndex = playerIndex;
         }
 
         public void HandleInput(PlayerActionType actionType, InputValue inputValue)
@@ -40,7 +41,7 @@ namespace LocalMultiplayer.Runtime
 
         public void SetInputDevice(InputDevice inputDevice)
         {
-            _inputDevice = inputDevice;
+            InputDevice = inputDevice;
             InputDeviceChangedEvent?.Invoke(inputDevice);
         }
     }

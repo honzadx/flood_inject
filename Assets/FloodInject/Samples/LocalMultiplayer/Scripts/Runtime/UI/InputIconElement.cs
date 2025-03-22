@@ -23,9 +23,11 @@ namespace LocalMultiplayer.Runtime
                 if (mapping.inputDevice == inputDevice)
                 {
                     _icon.sprite = mapping.icon;
-                    break;
+                    gameObject.SetActive(true);
+                    return;
                 }
             }
+            gameObject.SetActive(false);
         }
     }
 }

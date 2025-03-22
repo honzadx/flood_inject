@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 38947830}
   - component: {fileID: 38947831}
   m_Layer: 0
-  m_Name: RegisterGameConfig
+  m_Name: RegisterGameInit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d531a23f17044a308da6cc3901817c80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameConfig: {fileID: 11400000, guid: d80a14ddeb70246b88daa9c27e5c95c0, type: 2}
+  _gameInit: {fileID: 11400000, guid: d80a14ddeb70246b88daa9c27e5c95c0, type: 2}
 --- !u!1 &511623770
 GameObject:
   m_ObjectHideFlags: 0

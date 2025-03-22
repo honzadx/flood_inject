@@ -1,4 +1,7 @@
+using System.Collections;
+using UnityEngine.InputSystem.DualShock;
 using FloodInject.Runtime;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -51,25 +54,47 @@ namespace LocalMultiplayer.Runtime
             _playerInputRelay.HandleInput(PlayerActionType.Action2, value);
         }
         
-        protected void OnDeviceLost()
+        [UsedImplicitly] // Called implicitly by PlayerInput
+        protected IEnumerator OnDeviceLost()
         {
+            // Wait a single frame for the internal data to update
+            yield return null;
+            RefreshInputDevice();
             Debug.Log($"Player[{_playerIndex}] OnDeviceLost");
         }
-
-        protected void OnDeviceRegained()
+        
+        [UsedImplicitly] // Called implicitly by PlayerInput
+        protected IEnumerator OnDeviceRegained()
         {
+            // Wait a single frame for the internal data to update
+            yield return null;
             RefreshInputDevice();
             Debug.Log($"Player[{_playerIndex}] OnDeviceRegained");
         }
 
         protected void RefreshInputDevice()
         {
+            if (_playerInput.devices.Count == 0)
+            {
+                _playerInputRelay.SetInputDevice(InputDevice.None);
+                return;
+            }
+            
             var inputDevice = _playerInput.currentControlScheme switch
             {
-                "keyboard" => InputDevice.Keyboard,
-                "gamepad" => InputDevice.Gamepad,
-                _ => InputDevice.Keyboard
+                "Keyboard" => InputDevice.Keyboard,
+                "Gamepad" => InputDevice.Gamepad,
+                _ => InputDevice.None
             };
+            if (inputDevice == InputDevice.Gamepad)
+            {
+                if (_playerInput.GetDevice<Gamepad>() is DualShockGamepad dualShockGamepad)
+                {
+                    var gameInit = ContextProvider<GameContext>.Ctx.Get<GameInitSO>();
+                    var playerColor = gameInit.PlayerColors[_playerIndex];
+                    dualShockGamepad.SetLightBarColor(playerColor);
+                }
+            }
             _playerInputRelay.SetInputDevice(inputDevice);
         }
     }

@@ -51,9 +51,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mappings:
-  - inputDevice: 0
-    icon: {fileID: 21300000, guid: 88df567ccc2224c2d94d044b4205abab, type: 3}
   - inputDevice: 1
+    icon: {fileID: 21300000, guid: 88df567ccc2224c2d94d044b4205abab, type: 3}
+  - inputDevice: 2
     icon: {fileID: 21300000, guid: 4d6e685ae095c4671acae66d0b19a42a, type: 3}
   _icon: {fileID: 4339937719682312432}
 --- !u!222 &9170137882775407263

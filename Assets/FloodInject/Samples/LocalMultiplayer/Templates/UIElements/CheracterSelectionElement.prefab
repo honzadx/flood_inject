@@ -420,10 +420,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _characterPortrait: {fileID: 2181819329529092328}
   _textElement: {fileID: 4397014675915661622}
-  _characterTemplates:
-  - {fileID: 11400000, guid: a0710f8e972a24653998879aa16d82a8, type: 2}
-  - {fileID: 11400000, guid: 190efeb58fef3461daae542f479dd2cb, type: 2}
-  - {fileID: 11400000, guid: 809ec3915df4145f3b2c7d6f822c07c7, type: 2}
+  _characterSelection: {fileID: 11400000, guid: 9fda9de138e514ffbb47cdeb96aa3c02, type: 2}
   _overlay: {fileID: 3223611152709609508}
   _colorTag: {fileID: 344502436632081704}
   _inputIconElement: {fileID: 5113219704259804980}

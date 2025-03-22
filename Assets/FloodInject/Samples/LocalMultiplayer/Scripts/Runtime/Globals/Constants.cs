@@ -2,6 +2,7 @@ namespace LocalMultiplayer.Runtime
 {
     public static class Constants
     {
+        public const int LEVEL_LAYER_MASK = 1 << 6;
         public const int MAX_PLAYER_COUNT = 4;
     }
 }

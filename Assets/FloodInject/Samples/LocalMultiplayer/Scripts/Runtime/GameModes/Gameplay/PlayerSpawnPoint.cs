@@ -4,13 +4,13 @@ namespace LocalMultiplayer.Runtime
 {
     public class PlayerSpawnPoint : MonoBehaviour
     {
-        [SerializeField] PlayerBehaviour _playerBehaviour;
+        [SerializeField] PlayerBehaviour _player;
         
         public void SpawnPlayer(int playerIndex, CharacterTemplateSO characterTemplate, PlayerInputRelay playerInputRelay)
         {
-            var playerBehaviour = Instantiate(_playerBehaviour, transform);
-            playerBehaviour.transform.parent = null;
-            playerBehaviour.Init(playerIndex, characterTemplate, playerInputRelay);
+            var player = Instantiate(_player, transform);
+            player.transform.parent = null;
+            player.Init(playerIndex, characterTemplate, playerInputRelay);
         }
     }
 }

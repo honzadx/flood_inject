@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0079302ca0e416aa67d43453500b729, type: 3}
-  m_Name: Character_2
+  m_Script: {fileID: 11500000, guid: de433bcbfa104cbb8e82f65112b3fe1a, type: 3}
+  m_Name: Action_Dash
   m_EditorClassIdentifier: 
-  _health: 10
-  _speed: 4
-  _portrait: {fileID: 21300000, guid: 9a39ba9af427743b787ffd22600128cb, type: 3}
-  _action1: {fileID: 0}
-  _action2: {fileID: 0}
+  _displayName: Dash
+  _description: 
+  _icon: {fileID: 0}
+  _behaviour: {fileID: 3797444982009906102, guid: 9d594b118d7634001b79c4bb541deb66, type: 3}

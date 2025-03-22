@@ -27,7 +27,7 @@ namespace LocalMultiplayer.Runtime
         
         [SerializeField] private Image _characterPortrait;
         [SerializeField] private TextMeshProUGUI _textElement;
-        [SerializeField] private CharacterTemplateSO[] _characterTemplates;
+        [SerializeField] private CharacterSelectionSO _characterSelection;
         [SerializeField] private Image _overlay;
         [SerializeField] private Image _colorTag;
         [SerializeField] private InputIconElement _inputIconElement;
@@ -37,6 +37,7 @@ namespace LocalMultiplayer.Runtime
         private State _currentState = State.Inactive;
         private int _currentCharacterIndex;
         private Material _materialInstance; 
+        private PlayerInputRelay _playerInputRelay;
         
         public State CurrentState => _currentState;
 
@@ -44,7 +45,7 @@ namespace LocalMultiplayer.Runtime
         {
             return new Result(
                 IsPlaying: _currentState == State.Ready,
-                CharacterTemplate: _characterTemplates[_currentCharacterIndex]);
+                CharacterTemplate: _characterSelection.Characters[_currentCharacterIndex]);
         }
 
         protected void Start()
@@ -54,9 +55,11 @@ namespace LocalMultiplayer.Runtime
 
         protected void OnEnable()
         {
+            RandomizeCharacter();
+            
             StartListeningToPlayerInput();
-            Randomize();
             RefreshElement();
+            RefreshInputIcon();
         }
 
         protected void OnDisable()
@@ -74,18 +77,22 @@ namespace LocalMultiplayer.Runtime
         
         private void OnInputDeviceChanged(InputDevice inputDevice)
         {
-            _inputIconElement.Init(inputDevice);
+            if(inputDevice == InputDevice.None)
+            {
+                SetState(State.Inactive);
+            }
+            RefreshInputIcon();
         }
 
-        private void Randomize()
+        private void RandomizeCharacter()
         {
-            _currentCharacterIndex = UnityEngine.Random.Range(0, _characterTemplates.Length);
+            _currentCharacterIndex = UnityEngine.Random.Range(0, _characterSelection.Characters.Length);
         }
 
         private void RefreshColor()
         {
             var playerColor = ContextProvider<GameContext>.Ctx
-                .Get<GameConfigSO>()
+                .Get<GameInitSO>()
                 .PlayerColors[_playerIndex];
             _materialInstance = new Material(_material);
             _materialInstance.SetColor(_toColorPropertyID, playerColor);
@@ -99,50 +106,50 @@ namespace LocalMultiplayer.Runtime
             {
                 case State.Inactive:
                     _overlay.gameObject.SetActive(true);
-                    _inputIconElement.gameObject.SetActive(false);
-                    _colorTag.gameObject.SetActive(false);
                     _textElement.text = "<NO_PLAYER>";
                     break;
                 case State.Registered:
                     _overlay.gameObject.SetActive(false);
-                    _inputIconElement.gameObject.SetActive(true);
-                    _colorTag.gameObject.SetActive(true);
                     _textElement.text = $"<PLAYER_{_playerIndex}_REGISTERED>";
                     break;
                 case State.Ready:
                     _overlay.gameObject.SetActive(false);
-                    _inputIconElement.gameObject.SetActive(true);
-                    _colorTag.gameObject.SetActive(true);
                     _textElement.text = $"<PLAYER_{_playerIndex}_READY>";
                     break;
             }
             RefreshPortrait();
         }
 
+        private void RefreshInputIcon()
+        {
+            _inputIconElement.Init(_playerInputRelay.InputDevice);
+            _colorTag.gameObject.SetActive(_playerInputRelay.InputDevice != InputDevice.None);
+        }
+
         private void RefreshPortrait()
         {
-            _characterPortrait.sprite = _characterTemplates[_currentCharacterIndex].Portrait;
+            _characterPortrait.sprite = _characterSelection.Characters[_currentCharacterIndex].Portrait;
         }
 
 #region INPUT
         private void StartListeningToPlayerInput()
         {
-            var context = ContextProvider<GameContext>.Ctx;
-            var relay = context.Get<GameInputManager>().GetInputRelay(_playerIndex);
-            relay.InputDeviceChangedEvent += OnInputDeviceChanged;
-            relay.MoveEvent += OnMoveEvent;
-            relay.Action1Event += OnAction1Event;
-            relay.Action2Event += OnAction2Event;
+            _playerInputRelay = ContextProvider<GameContext>.Ctx
+                .Get<GameInputManager>()
+                .GetInputRelay(_playerIndex);
+            _playerInputRelay.InputDeviceChangedEvent += OnInputDeviceChanged;
+            _playerInputRelay.MoveEvent += OnMoveEvent;
+            _playerInputRelay.Action1Event += OnAction1Event;
+            _playerInputRelay.Action2Event += OnAction2Event;
         }
 
         private void StopListeningToPlayerInput()
         {
-            var context = ContextProvider<GameContext>.Ctx;
-            var relay = context.Get<GameInputManager>().GetInputRelay(_playerIndex);
-            relay.InputDeviceChangedEvent -= OnInputDeviceChanged;
-            relay.MoveEvent -= OnMoveEvent;
-            relay.Action1Event -= OnAction1Event;
-            relay.Action2Event -= OnAction2Event;
+            if (_playerInputRelay == null) return;
+            _playerInputRelay.InputDeviceChangedEvent -= OnInputDeviceChanged;
+            _playerInputRelay.MoveEvent -= OnMoveEvent;
+            _playerInputRelay.Action1Event -= OnAction1Event;
+            _playerInputRelay.Action2Event -= OnAction2Event;
         }
         
         private void OnMoveEvent(Vector2 movement)
@@ -156,13 +163,13 @@ namespace LocalMultiplayer.Runtime
             if (Mathf.Abs(horizontal) > 0.5f)
             {
                 _currentCharacterIndex += (int)Mathf.Sign(horizontal);
-                if (_currentCharacterIndex >= _characterTemplates.Length)
+                if (_currentCharacterIndex >= _characterSelection.Characters.Length)
                 {
                     _currentCharacterIndex = 0;
                 }
                 else if (_currentCharacterIndex < 0)
                 {
-                    _currentCharacterIndex = _characterTemplates.Length - 1;
+                    _currentCharacterIndex = _characterSelection.Characters.Length - 1;
                 }
                 RefreshPortrait();
             }

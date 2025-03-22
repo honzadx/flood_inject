@@ -3,7 +3,7 @@ using UnityEngine;
 namespace LocalMultiplayer.Runtime
 {
     [CreateAssetMenu(menuName = "LocalMultiplayer/GameConfig")]
-    public class GameConfigSO : ScriptableObject
+    public class GameInitSO : ScriptableObject
     {
         [SerializeField] private Color[] _playerColors;
         

@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0079302ca0e416aa67d43453500b729, type: 3}
-  m_Name: Character_3
+  m_Script: {fileID: 11500000, guid: de433bcbfa104cbb8e82f65112b3fe1a, type: 3}
+  m_Name: Action_Kick
   m_EditorClassIdentifier: 
-  _health: 10
-  _speed: 4
-  _portrait: {fileID: 21300000, guid: 44830ad2445b941eabf0041d12d2cdd5, type: 3}
-  _action1: {fileID: 0}
-  _action2: {fileID: 0}
+  _displayName: Kick
+  _description: 
+  _icon: {fileID: 0}
+  _behaviour: {fileID: 1940454625282930532, guid: b6fa52433fffa4a42af8a1a4fa18c206, type: 3}

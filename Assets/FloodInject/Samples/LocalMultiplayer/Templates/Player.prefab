@@ -10,10 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 5407766115808107756}
   - component: {fileID: 3312179370443091040}
+  - component: {fileID: 4731114467768623272}
   - component: {fileID: 4747282743681136136}
   - component: {fileID: 3638577998487031540}
   m_Layer: 0
-  m_Name: PlayerBehaviour
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -47,8 +48,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e45c47d3134ed41459c8de56fe9e7847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _rigidbody2D: {fileID: 4747282743681136136}
   _spriteRenderer: {fileID: 6365149299642347264}
+  _healthComponent: {fileID: 4731114467768623272}
   _material: {fileID: 2100000, guid: 7e1df24fd46264bdeb3b3f6657ee43f2, type: 2}
+  _speed: 200
+  _jumpVelocity: 5
+--- !u!114 &4731114467768623272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1340035522780360342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea5c5cddcc5b40498f6982b96c7cc2ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _team: 0
+  _maxHealth: 0
+  _health: 0
 --- !u!50 &4747282743681136136
 Rigidbody2D:
   serializedVersion: 5
@@ -65,7 +85,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: e0782042d203a4f9bb83147544bb147f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
