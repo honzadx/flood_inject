@@ -1,6 +1,6 @@
 namespace LocalMultiplayer.Runtime
 {
-    public enum PlayerInputActionType
+    public enum PlayerActionType
     {
         Movement,
         Action1,

@@ -8,9 +8,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 [Generator]
-public class InjectSourceGenerator : IIncrementalGenerator
+public class ContextListenerSourceGenerator : IIncrementalGenerator
 {
-    private record InjectMetadata(string FieldType, string FieldName, string Context)
+    private record FieldInjectMetadata(string FieldType, string FieldName, string Context)
     {
         internal string FieldType { get; } = FieldType;
         internal string FieldName { get; } = FieldName;
@@ -32,16 +32,15 @@ public class InjectSourceGenerator : IIncrementalGenerator
     private static TypeModel Transform(GeneratorAttributeSyntaxContext context)
     {
         var syntax = (ClassDeclarationSyntax)context.TargetNode;
-        var modifiersValid = syntax.HasModifiers(["public", "partial"]);
-        var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
+        var validModifiers = syntax.HasModifiers(["partial"]);
 
-        if (!modifiersValid)
+        if (!validModifiers)
         {
             return null;
         }
 
         List<BaseTypeElementModel> elementModelList = new();
-        List<InjectMetadata> injectMetadataList = new();
+        List<FieldInjectMetadata> injectMetadataList = new();
         var constructIsOverride = false;
         var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
         var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
@@ -69,7 +68,8 @@ public class InjectSourceGenerator : IIncrementalGenerator
             }
         }
         
-        foreach (var field in allFields)
+        var fields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
+        foreach (var field in fields)
         {
             if (!field.HasAttribute("FloodInject.Runtime.InjectAttribute", context))
             {
@@ -84,11 +84,11 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 .Expression
                 .GetFirstChildOfType<TypeSyntax>();
             
-            InjectMetadata injectMetadata = new InjectMetadata(
+            FieldInjectMetadata fieldInjectMetadata = new FieldInjectMetadata(
                 FieldType: field.Declaration.Type.ToString(),
                 FieldName: field.Declaration.Variables[0].Identifier.Text, 
                 Context: type.ToString());
-            injectMetadataList.Add(injectMetadata);
+            injectMetadataList.Add(fieldInjectMetadata);
         }
 
         if (injectMetadataList.Count == 0)
@@ -104,7 +104,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
         }
         foreach (var injectMetadata in injectMetadataList)
         {
-            methodLines.Add($"{injectMetadata.FieldName} = ContextProvider<{injectMetadata.Context}>.GetContext().Get<{injectMetadata.FieldType}>();");
+            methodLines.Add($"{injectMetadata.FieldName} = ContextProvider<{injectMetadata.Context}>.Ctx.Get<{injectMetadata.FieldType}>();");
         }
         methodLines.AddRange(["", "PostConstruct();"]);
 
@@ -134,12 +134,14 @@ public class InjectSourceGenerator : IIncrementalGenerator
                 lines: [])
         ]);
 
-        var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).Append("global::FloodInject.Runtime").ToArray();
+        List<string> preDeclarationElements = new();
+        preDeclarationElements.AddRange(["using global::FloodInject.Runtime;", ""]);
+        preDeclarationElements.AddRange(syntax.GetUsingDirectives().Select(s => $"using {s.Name};"));
         var elements = elementModelList.Select(m => m as BaseTypeElementModel).ToArray();
         
         TypeModel typeModel = new TypeModel(
-            pragmaDisables: [ "CS0109" ],
-            usings: usings,
+            pragmaDisables: [ "CS0109", "CS0105" ],
+            preDeclarationElements: preDeclarationElements.ToArray(),
             @namespace: syntax.GetNamespaceName(),
             keywords: ["partial"],
             kind: "class",

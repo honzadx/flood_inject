@@ -31,7 +31,7 @@ public class ContextSourceGenerator : IIncrementalGenerator
     private static TypeModel Transform(GeneratorAttributeSyntaxContext context)
     {
         var syntax = (ClassDeclarationSyntax)context.TargetNode;
-        var validModifiers = syntax.HasModifiers(["public", "partial"]) && !syntax.HasModifier("abstract");
+        var validModifiers = syntax.HasModifier("partial") && !syntax.HasModifier("abstract");
         
         if(!validModifiers)
         {
@@ -285,7 +285,7 @@ public class ContextSourceGenerator : IIncrementalGenerator
 
         TypeModel typeModel = new TypeModel(
             pragmaDisables: [],
-            usings: ["global::FloodInject.Runtime"],
+            preDeclarationElements: ["using global::FloodInject.Runtime;"],
             @namespace: syntax.GetNamespaceName(),
             keywords: ["partial"],
             kind: "class",

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 internal record TypeModel
 {
     public ImmutableArray<string> PragmaDisables { get; }
-    public ImmutableArray<string> Usings { get; }
+    public ImmutableArray<string> PreDeclarationElements { get; }
     public string Namespace { get; }
     public ImmutableArray<string> Keywords { get; }
     public string Kind { get; }
@@ -13,7 +13,7 @@ internal record TypeModel
 
     public TypeModel(
         string[] pragmaDisables,
-        string[] usings,
+        string[] preDeclarationElements,
         string @namespace, 
         string[] keywords, 
         string kind,
@@ -22,7 +22,7 @@ internal record TypeModel
         BaseTypeElementModel[] elements)
     {
         PragmaDisables = ImmutableArray.Create(pragmaDisables);
-        Usings = ImmutableArray.Create(usings);
+        PreDeclarationElements = ImmutableArray.Create(preDeclarationElements);
         Namespace = @namespace;
         Keywords = ImmutableArray.Create(keywords);
         Kind = kind;
@@ -38,11 +38,11 @@ internal record TypeModel
         {
             codeWriter.WriteLine($"#pragma warning disable {pragmaDisable}");
         }
-        foreach (var @using in Usings)
+        foreach (var preDeclarationElement in PreDeclarationElements)
         {
-            codeWriter.WriteLine($"using {@using};");
+            codeWriter.WriteLine(preDeclarationElement);
         }
-        if (Usings.Length > 0)
+        if (PreDeclarationElements.Length > 0)
         {
             codeWriter.WriteLine();
         }

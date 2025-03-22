@@ -1,4 +1,3 @@
-using System;
 using FloodInject.Runtime;
 using UnityEngine;
 
@@ -6,6 +5,11 @@ namespace LocalMultiplayer.Runtime
 {
     public class CharacterSelectionScreen : MonoBehaviour
     {
+        public record Result(CharacterSelectionElement.Result[] CharacterSelections)
+        {
+            public CharacterSelectionElement.Result[] CharacterSelections { get; } = CharacterSelections;
+        }
+        
         [SerializeField] private CharacterSelectionElement[] _characterSelectionElements;
         [SerializeField] private ButtonUI _menuButton;
         [SerializeField] private ButtonUI _playButton;
@@ -13,25 +17,18 @@ namespace LocalMultiplayer.Runtime
 
         protected void Start()
         {
+            ContextProvider<PlayStartupContext>.Ctx.Reset();
             foreach (var element in _characterSelectionElements)
             {
                 element.StateChangedEvent += OnStateChanged;
             }
             _menuButton.ButtonPressedEvent += OnMenuButtonPressed;
-            _playButton.ButtonPressedEvent += OnPLayButtonPressed;
+            _playButton.ButtonPressedEvent += OnPlayButtonPressed;
+            RefreshElement();
         }
 
-        private void OnStateChanged(int playerIndex, CharacterSelectionElement.State newState, CharacterTemplateSO characterTemplate)
+        private void OnStateChanged(int playerIndex, CharacterSelectionElement.State newState)
         {
-            BaseContext context = playerIndex switch
-            {
-                1 => ContextProvider<Player1Context>.GetContext(),
-                2 => ContextProvider<Player2Context>.GetContext(),
-                3 => ContextProvider<Player3Context>.GetContext(),
-                4 => ContextProvider<Player4Context>.GetContext(),
-                _ => throw new IndexOutOfRangeException($"Received invalid player index {playerIndex}")
-            };
-            context.Rebind(characterTemplate);
             RefreshElement();
         }
 
@@ -59,9 +56,21 @@ namespace LocalMultiplayer.Runtime
             Debug.Log($"CharacterSelectionScreen selection state changed ({inactiveCount}|{registeredCount}|{readyCount})");
         }
 
-        private void OnPLayButtonPressed()
+        private void OnPlayButtonPressed()
         {
-            ContextProvider<GameContext>.GetContext().Get<GameScenesManager>().TransitionToScene("1_Game");
+            CharacterSelectionElement.Result[] characterSelections = new CharacterSelectionElement.Result[_characterSelectionElements.Length];
+            for (int playerIndex = 0; playerIndex < _characterSelectionElements.Length; ++playerIndex)
+            {
+                characterSelections[playerIndex] = _characterSelectionElements[playerIndex].GetResult();
+            }
+            var result = new Result(characterSelections);
+            var context = ContextProvider<PlayStartupContext>.Ctx;
+            context.Rebind(result);
+            context.Lock();
+            
+            ContextProvider<GameContext>.Ctx
+                .Get<GameScenesManager>()
+                .TransitionToScene("1_Gameplay");
         }
 
         private void OnMenuButtonPressed()

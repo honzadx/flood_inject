@@ -29,7 +29,6 @@ namespace FloodInject.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract T Get<T>();
         
-#region PROTECTED
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void BindInternal<T>(T instance)
         {
@@ -77,6 +76,5 @@ namespace FloodInject.Runtime
             var key = typeof(T);
             return _contracts[key].Fulfill<T>();
         }
-#endregion PROTECTED
     }
 }

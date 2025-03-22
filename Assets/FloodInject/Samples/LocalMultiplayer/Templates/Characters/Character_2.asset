@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Character_2
   m_EditorClassIdentifier: 
   _health: 10
+  _speed: 4
   _portrait: {fileID: 21300000, guid: 9a39ba9af427743b787ffd22600128cb, type: 3}
-  _prefab: {fileID: 0}
   _action1: {fileID: 0}
   _action2: {fileID: 0}

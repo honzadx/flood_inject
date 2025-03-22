@@ -29,7 +29,6 @@ namespace FloodInject.Runtime
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void Reset();
         
-#region PROTECTED
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void BindInternal<T>(T instance)
         {
@@ -77,6 +76,5 @@ namespace FloodInject.Runtime
         {
             _contracts.Clear();
         }
-#endregion PROTECTED
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using FloodInject.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,49 +11,44 @@ namespace LocalMultiplayer.Runtime
         [SerializeField] private int _playerIndex;
         [SerializeField] private PlayerInput _playerInput;
 
+        private PlayerInputRelay _playerInputRelay;
         private InputDevice _inputDevice;
         private bool _initialized;
-        private BaseContext _playerContext;
 
-        public void Start()
+        public int PlayerIndex => _playerIndex;
+        
+        private void Init()
+        {
+            _playerIndex = _playerCount++;
+            _playerInputRelay = ContextProvider<GameContext>.Ctx
+                .Get<GameInputManager>()
+                .GetInputRelay(_playerIndex);
+            _initialized = true;
+            
+            RefreshInputDevice();
+        }
+        
+        protected void Start()
         {
             if (!_initialized) Init();
         }
-
-        private void Init()
-        {
-            _playerCount++;
-            _playerIndex = _playerCount;
-            _playerContext = Runtime.PlayerContext.GetPlayerContextFromIndex(_playerIndex);
-            _playerContext.Bind(this);
-            var inputDevice = _playerInput.currentControlScheme switch
-            {
-                "keyboard" => InputDevice.Keyboard,
-                "gamepad" => InputDevice.Gamepad,
-                _ => InputDevice.Keyboard
-            };
-            _playerContext.Get<PlayerInputRelay>().SetInputDevice(inputDevice);
-            _initialized = true;
-        }
-
-        public int PlayerIndex => _playerIndex;
 
         protected void OnMovement(InputValue value)
         {
             if (!_initialized) Init();
-            _playerContext.Get<PlayerInputRelay>()?.HandleInput(PlayerInputActionType.Movement, value);
+            _playerInputRelay.HandleInput(PlayerActionType.Movement, value);
         }
         
         protected void OnAction1(InputValue value)
         {
             if (!_initialized) Init();
-            _playerContext.Get<PlayerInputRelay>()?.HandleInput(PlayerInputActionType.Action1, value);
+            _playerInputRelay.HandleInput(PlayerActionType.Action1, value);
         }
 
         protected void OnAction2(InputValue value)
         {
             if (!_initialized) Init();
-            _playerContext.Get<PlayerInputRelay>()?.HandleInput(PlayerInputActionType.Action2, value);
+            _playerInputRelay.HandleInput(PlayerActionType.Action2, value);
         }
         
         protected void OnDeviceLost()
@@ -64,14 +58,19 @@ namespace LocalMultiplayer.Runtime
 
         protected void OnDeviceRegained()
         {
+            RefreshInputDevice();
+            Debug.Log($"Player[{_playerIndex}] OnDeviceRegained");
+        }
+
+        protected void RefreshInputDevice()
+        {
             var inputDevice = _playerInput.currentControlScheme switch
             {
                 "keyboard" => InputDevice.Keyboard,
                 "gamepad" => InputDevice.Gamepad,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => InputDevice.Keyboard
             };
-            _playerContext.Get<PlayerInputRelay>().SetInputDevice(inputDevice);
-            Debug.Log($"Player[{_playerIndex}] OnDeviceRegained");
+            _playerInputRelay.SetInputDevice(inputDevice);
         }
     }
 }

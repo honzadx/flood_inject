@@ -11,9 +11,6 @@ namespace FloodInject.Runtime
             _context = Activator.CreateInstance<T>();
         }
 
-        public static T GetContext()
-        {
-            return _context;
-        }
+        public static T Ctx => _context;
     }
 }

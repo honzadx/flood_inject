@@ -1,25 +1,26 @@
 using System;
+using FloodInject.Runtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace LocalMultiplayer.Runtime
 {
-    public record CharacterSelectionState(bool IsPlaying, CharacterTemplateSO CharacterTemplate)
-    {
-        public bool IsPlaying { get; } = IsPlaying;
-        public CharacterTemplateSO CharacterTemplate { get; } = CharacterTemplate;
-    }
-    
     public class CharacterSelectionElement : MonoBehaviour
     {
-        public event Action<int, State, CharacterTemplateSO> StateChangedEvent;
+        public event Action<int, State> StateChangedEvent;
         
         public enum State
         {
             Inactive,
             Registered,
             Ready
+        }
+
+        public record Result(bool IsPlaying, CharacterTemplateSO CharacterTemplate)
+        {
+            public bool IsPlaying { get; } = IsPlaying;
+            public CharacterTemplateSO CharacterTemplate { get; } = CharacterTemplate;
         }
         
         [SerializeField] private Image _characterPortrait;
@@ -35,22 +36,21 @@ namespace LocalMultiplayer.Runtime
         
         public State CurrentState => _currentState;
 
-        public void AcceptSelection()
+        public Result GetResult()
         {
-            var characterSelectionState = new CharacterSelectionState(
+            return new Result(
                 IsPlaying: _currentState == State.Ready,
                 CharacterTemplate: _characterTemplates[_currentCharacterIndex]);
-            var playerContext = PlayerContext.GetPlayerContextFromIndex(_playerIndex);
-            playerContext.Bind(characterSelectionState);
         }
 
-        public void OnEnable()
+        protected void OnEnable()
         {
             StartListeningToPlayerInput();
             RefreshElement();
+            RefreshColorTag();
         }
 
-        public void OnDisable()
+        protected void OnDisable()
         {
             StopListeningToPlayerInput();
             SetState(State.Inactive);
@@ -59,13 +59,20 @@ namespace LocalMultiplayer.Runtime
         private void SetState(State newState)
         {
             _currentState = newState;
-            StateChangedEvent?.Invoke(_playerIndex, _currentState, _characterTemplates[_currentCharacterIndex]);
+            StateChangedEvent?.Invoke(_playerIndex, _currentState);
             RefreshElement();
         }
         
         private void OnInputDeviceChanged(InputDevice inputDevice)
         {
             _inputIconElement.Init(inputDevice);
+        }
+
+        private void RefreshColorTag()
+        {
+            _colorTag.color = ContextProvider<GameContext>.Ctx
+                .Get<GameConfigSO>()
+                .PlayerColors[_playerIndex];
         }
 
         private void RefreshElement()
@@ -102,26 +109,25 @@ namespace LocalMultiplayer.Runtime
 #region INPUT
         private void StartListeningToPlayerInput()
         {
-            var relay = PlayerContext.GetPlayerContextFromIndex(_playerIndex).Get<PlayerInputRelay>();
+            var context = ContextProvider<GameContext>.Ctx;
+            var relay = context.Get<GameInputManager>().GetInputRelay(_playerIndex);
             relay.InputDeviceChangedEvent += OnInputDeviceChanged;
-            relay.MoveEvent += OnMove;
-            relay.Action1Event += OnAction1;
-            relay.Action2Event += OnAction2;
+            relay.MoveEvent += OnMoveEvent;
+            relay.Action1Event += OnAction1Event;
+            relay.Action2Event += OnAction2Event;
         }
 
         private void StopListeningToPlayerInput()
         {
-            var relay = PlayerContext.GetPlayerContextFromIndex(_playerIndex)?.Get<PlayerInputRelay>();
-            if (relay != null)
-            {
-                relay.InputDeviceChangedEvent -= OnInputDeviceChanged;
-                relay.MoveEvent -= OnMove;
-                relay.Action1Event -= OnAction1;
-                relay.Action2Event -= OnAction2;
-            }
+            var context = ContextProvider<GameContext>.Ctx;
+            var relay = context.Get<GameInputManager>().GetInputRelay(_playerIndex);
+            relay.InputDeviceChangedEvent -= OnInputDeviceChanged;
+            relay.MoveEvent -= OnMoveEvent;
+            relay.Action1Event -= OnAction1Event;
+            relay.Action2Event -= OnAction2Event;
         }
         
-        private void OnMove(Vector2 movement)
+        private void OnMoveEvent(Vector2 movement)
         {
             if (_currentState != State.Registered)
             {
@@ -144,7 +150,7 @@ namespace LocalMultiplayer.Runtime
             }
         }
 
-        private void OnAction1()
+        private void OnAction1Event()
         {
             switch (_currentState)
             {
@@ -157,7 +163,7 @@ namespace LocalMultiplayer.Runtime
             }
         }
 
-        private void OnAction2()
+        private void OnAction2Event()
         {
             switch (_currentState)
             {

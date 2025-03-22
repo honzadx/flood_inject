@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace FloodInject.Runtime
 {
@@ -15,7 +15,7 @@ namespace FloodInject.Runtime
         public TBaseInstance Fulfill<TBaseInstance>()
         {
             var instance = _factoryMethod();
-            return Unsafe.As<TInstance, TBaseInstance>(ref instance);
+            return UnsafeUtility.As<TInstance, TBaseInstance>(ref instance);
         }
     }
 }

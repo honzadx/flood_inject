@@ -22,17 +22,17 @@ namespace LocalMultiplayer.Runtime
             this.playerIndex = playerIndex;
         }
 
-        public void HandleInput(PlayerInputActionType actionType, InputValue inputValue)
+        public void HandleInput(PlayerActionType actionType, InputValue inputValue)
         {
             switch (actionType)
             {
-                case PlayerInputActionType.Movement:
+                case PlayerActionType.Movement:
                     MoveEvent?.Invoke(inputValue.Get<Vector2>());
                     break;
-                case PlayerInputActionType.Action1:
+                case PlayerActionType.Action1:
                     Action1Event?.Invoke();
                     break;
-                case PlayerInputActionType.Action2:
+                case PlayerActionType.Action2:
                     Action2Event?.Invoke();
                     break;
             }
