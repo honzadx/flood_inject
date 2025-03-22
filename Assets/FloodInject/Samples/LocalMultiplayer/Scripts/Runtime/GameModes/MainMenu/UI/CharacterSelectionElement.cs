@@ -8,8 +8,6 @@ namespace LocalMultiplayer.Runtime
 {
     public class CharacterSelectionElement : MonoBehaviour
     {
-        private static readonly int _toColorPropertyID = Shader.PropertyToID("_ToColor");
-        
         public event Action<int, State> StateChangedEvent;
         
         public enum State
@@ -95,7 +93,7 @@ namespace LocalMultiplayer.Runtime
                 .Get<GameInitSO>()
                 .PlayerColors[_playerIndex];
             _materialInstance = new Material(_material);
-            _materialInstance.SetColor(_toColorPropertyID, playerColor);
+            _materialInstance.SetColor(Statics.ToColorPropertyID, playerColor);
             _colorTag.color = playerColor;
             _characterPortrait.material = _materialInstance;
         }

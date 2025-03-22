@@ -1,4 +1,5 @@
 using FloodInject.Runtime;
+using LocalMultiplayer.Runtime.UI;
 using UnityEngine;
 
 namespace LocalMultiplayer.Runtime
@@ -6,6 +7,8 @@ namespace LocalMultiplayer.Runtime
     public class GameplayGameMode : BaseGameMode
     {
         [SerializeField] private PlayerSpawnPoint _playerSpawnPoint;
+        [SerializeField] private Transform _playerFramesContainer;
+        [SerializeField] private PlayerFrameDecorator _playerFramePrefab;
         
         protected void Start()
         {
@@ -17,10 +20,12 @@ namespace LocalMultiplayer.Runtime
             {
                 if (characterSelection.IsPlaying)
                 {
-                    _playerSpawnPoint.SpawnPlayer(
+                    var player = _playerSpawnPoint.SpawnPlayer(
                         playerIndex, 
                         characterSelection.CharacterTemplate, 
                         gameInputManager.GetInputRelay(playerIndex));
+                    var playerFrameInstance = Instantiate(_playerFramePrefab, _playerFramesContainer);
+                    playerFrameInstance.Init(player);
                 }
                 playerIndex++;
             }

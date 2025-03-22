@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0079302ca0e416aa67d43453500b729, type: 3}
   m_Name: Character_1
   m_EditorClassIdentifier: 
-  _health: 10
-  _speed: 4
+  _health: 3
   _portrait: {fileID: 21300000, guid: a9a2f67167c824a0f9a6a7b5ed0a7465, type: 3}
   _action1: {fileID: 11400000, guid: b4dd5d0011e094cd6957f472ceb8e8e7, type: 2}
   _action2: {fileID: 11400000, guid: 5483d21710fa241d18fcda79d144123d, type: 2}

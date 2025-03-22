@@ -6,11 +6,12 @@ namespace LocalMultiplayer.Runtime
     {
         [SerializeField] PlayerBehaviour _player;
         
-        public void SpawnPlayer(int playerIndex, CharacterTemplateSO characterTemplate, PlayerInputRelay playerInputRelay)
+        public PlayerBehaviour SpawnPlayer(int playerIndex, CharacterTemplateSO characterTemplate, PlayerInputRelay playerInputRelay)
         {
             var player = Instantiate(_player, transform);
             player.transform.parent = null;
             player.Init(playerIndex, characterTemplate, playerInputRelay);
+            return player;
         }
     }
 }

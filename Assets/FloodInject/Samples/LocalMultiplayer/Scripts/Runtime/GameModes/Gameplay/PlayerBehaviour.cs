@@ -11,8 +11,6 @@ namespace LocalMultiplayer.Runtime
             Action = 1,
         }
         
-        private static readonly int _toColorPropertyID = Shader.PropertyToID("_ToColor");
-
         [SerializeField] private Rigidbody2D _rigidbody2D;
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private HealthComponent _healthComponent;
@@ -21,6 +19,7 @@ namespace LocalMultiplayer.Runtime
         [SerializeField] private float _jumpVelocity;
         
         private int _playerIndex;
+        private float _horizontalMovement;
         private bool _isGrounded;
         private CharacterTemplateSO _characterTemplate;
         private PlayerInputRelay _playerInputRelay;
@@ -30,7 +29,9 @@ namespace LocalMultiplayer.Runtime
         private ActionBehaviour _action1Behaviour;
         private ActionBehaviour _action2Behaviour;
 
-        private float _horizontalMovement;
+        public HealthComponent HealthComponent => _healthComponent;
+        public CharacterTemplateSO CharacterTemplate => _characterTemplate;
+        public int PlayerIndex => _playerIndex;
         
         public void Init(int playerIndex, CharacterTemplateSO characterTemplate, PlayerInputRelay playerInputRelay)
         {
@@ -43,7 +44,7 @@ namespace LocalMultiplayer.Runtime
             
             _materialInstance = new Material(_material);
             _materialInstance.SetColor(
-                nameID: _toColorPropertyID, 
+                nameID: Statics.ToColorPropertyID, 
                 value: ContextProvider<GameContext>.Ctx.Get<GameInitSO>().PlayerColors[_playerIndex]);
             _spriteRenderer.material = _materialInstance;
             
