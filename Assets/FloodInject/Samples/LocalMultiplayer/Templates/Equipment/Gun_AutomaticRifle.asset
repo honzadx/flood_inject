@@ -10,9 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de433bcbfa104cbb8e82f65112b3fe1a, type: 3}
-  m_Name: Action_Dash
+  m_Name: Gun_AutomaticRifle
   m_EditorClassIdentifier: 
-  _displayName: Dash
+  _displayName: Automatic Rifle
   _description: 
   _icon: {fileID: 0}
-  _behaviour: {fileID: 3797444982009906102, guid: 9d594b118d7634001b79c4bb541deb66, type: 3}
+  _visual: {fileID: -2413806693520163455, guid: 8840c39a7ae4a428a81a611a368a1211, type: 3}
+  _fireRate: 5
+  _bulletPrefab: {fileID: 3874883098135647654, guid: 6e71c22804333483ab7bae949b416f5b, type: 3}
+  _bulletOffset: {x: 0.75, y: 0.5, z: 0}

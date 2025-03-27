@@ -7,7 +7,7 @@
             "actions": [
                 {
                     "name": "Movement",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "e1ab98ae-0a33-4e00-81bb-b40b43132e07",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -16,20 +16,20 @@
                 },
                 {
                     "name": "Action1",
-                    "type": "Button",
+                    "type": "PassThrough",
                     "id": "7d004e06-e08c-4d5b-adef-acc05aa0c3cf",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 },
                 {
                     "name": "Action2",
-                    "type": "Button",
+                    "type": "PassThrough",
                     "id": "ed137b99-1224-4f57-85e2-27e32fab2055",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "initialStateCheck": false
                 }
             ],

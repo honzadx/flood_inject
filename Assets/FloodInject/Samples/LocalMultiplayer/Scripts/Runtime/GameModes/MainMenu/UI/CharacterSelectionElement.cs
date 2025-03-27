@@ -173,8 +173,9 @@ namespace LocalMultiplayer.Runtime
             }
         }
 
-        private void OnAction1Event()
+        private void OnAction1Event(bool pressedDown)
         {
+            if (!pressedDown) return;
             switch (_currentState)
             {
                 case State.Inactive:
@@ -186,8 +187,9 @@ namespace LocalMultiplayer.Runtime
             }
         }
 
-        private void OnAction2Event()
+        private void OnAction2Event(bool pressedDown)
         {
+            if (!pressedDown) return;
             switch (_currentState)
             {
                 case State.Registered:

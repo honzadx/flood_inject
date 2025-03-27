@@ -58,6 +58,8 @@ public class ContextSourceGenerator : IIncrementalGenerator
         
         List<BaseTypeElementModel> elementModelList = new ();
 
+        // Things happened and I don't care enough right now to fix this.
+        // TODO (hdx): Fix this please
         switch (type)
         {
             case ContextType.Volatile:
@@ -67,10 +69,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
                             keywords: ["public", "override"],
                             returnType: "void",
                             name: "Bind<T>",
-                            parameters: [new VariableModel(
-                                type: "T",
-                                name: "instance"
-                                )],
+                            parameters: [
+                                new VariableModel(
+                                    type: "T",
+                                    name: "instance")
+                            ],
                             lambda: false,
                             lines: ["BindInternal(instance);"]),
                     new NewLineModel(),
@@ -78,21 +81,53 @@ public class ContextSourceGenerator : IIncrementalGenerator
                         keywords: ["public", "override"],
                         returnType: "void",
                         name: "Bind<T>",
-                        parameters: [new VariableModel(
-                            type: "global::System.Func<T>",
-                            name: "factoryMethod"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
                         lambda: false,
                         lines: ["BindInternal(factoryMethod);"]),
                     new NewLineModel(),
                     new MethodModel(
                         keywords: ["public", "override"],
                         returnType: "void",
+                        name: "Bind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
+                        lambda: false,
+                        lines: ["BindInternal(key, instance);"]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Bind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
+                        lambda: false,
+                        lines: ["BindInternal(key, factoryMethod);"]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
                         name: "Rebind<T>",
-                        parameters: [new VariableModel(
-                            type: "T",
-                            name: "instance"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
                         lambda: false,
                         lines: ["RebindInternal(instance);"]),
                     new NewLineModel(),
@@ -100,12 +135,42 @@ public class ContextSourceGenerator : IIncrementalGenerator
                         keywords: ["public", "override"],
                         returnType: "void",
                         name: "Rebind<T>",
-                        parameters: [new VariableModel(
-                            type: "global::System.Func<T>",
-                            name: "factoryMethod"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
                         lambda: false,
                         lines: ["RebindInternal(factoryMethod);"]),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Rebind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
+                        lambda: false,
+                        lines: ["RebindInternal(key, instance);"]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Rebind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
+                        lambda: false,
+                        lines: ["RebindInternal(key, factoryMethod);"]),
                     new NewLineModel(),
                     new MethodModel(
                         keywords: ["public", "override"],
@@ -118,10 +183,14 @@ public class ContextSourceGenerator : IIncrementalGenerator
                     new MethodModel(
                         keywords: ["public", "override"],
                         returnType: "void",
-                        name: "Reset",
-                        parameters: [],
+                        name: "Unbind",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key")
+                        ],
                         lambda: false,
-                        lines: ["ResetInternal();"]),
+                        lines: ["Unbind(key);"]),
                     new NewLineModel(),
                     new MethodModel(
                         keywords: ["public", "override"],
@@ -129,17 +198,35 @@ public class ContextSourceGenerator : IIncrementalGenerator
                         name: "Get<T>",
                         parameters: [],
                         lambda: false,
-                        lines: ["return GetInternal<T>();"])
+                        lines: ["return GetInternal<T>();"]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "T",
+                        name: "Get<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key")
+                        ],
+                        lambda: false,
+                        lines: ["return GetInternal<T>(key);"]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Reset",
+                        parameters: [],
+                        lambda: false,
+                        lines: ["ResetInternal();"]),
                 ]);
                 break;
             case ContextType.Protected:
                 var unityAssertionsDefine = "#if UNITY_ASSERTIONS";
                 var endDefine = "#endif";
                 var elseDefine = "#else";
-                
                 var unityEnsureLocked = """global::UnityEngine.Assertions.Assert.IsTrue(_isLocked, $"Protected context has to be locked to retrieve contracts {this}");""";
                 var unityEnsureUnlocked = """global::UnityEngine.Assertions.Assert.IsTrue(!_isLocked, $"Protected context has to be unlocked to modify contracts {this}");""";
-                
                 var ensureLocked = """global::System.Diagnostics.Debug.Assert(_isLocked, $"Protected context has to be locked to retrieve contracts {this}");""";
                 var ensureUnlocked = """global::System.Diagnostics.Debug.Assert(!_isLocked, $"Protected context has to be unlocked to modify contracts {this}");""";
                 elementModelList.AddRange(
@@ -160,10 +247,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
                             keywords: ["public", "override"],
                             returnType: "void",
                             name: "Bind<T>",
-                            parameters: [new VariableModel(
-                                type: "T",
-                                name: "instance"
-                                )],
+                            parameters: [
+                                new VariableModel(
+                                    type: "T",
+                                    name: "instance")
+                            ],
                             lambda: false,
                             lines: 
                             [
@@ -179,10 +267,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
                         keywords: ["public", "override"],
                         returnType: "void",
                         name: "Bind<T>",
-                        parameters: [new VariableModel(
-                            type: "global::System.Func<T>",
-                            name: "factoryMethod"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
                         lambda: false,
                         lines: 
                         [
@@ -197,11 +286,58 @@ public class ContextSourceGenerator : IIncrementalGenerator
                     new MethodModel(
                         keywords: ["public", "override"],
                         returnType: "void",
+                        name: "Bind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureUnlocked,
+                            elseDefine,
+                            ensureUnlocked,
+                            endDefine,
+                            "BindInternal(key, instance);"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Bind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureUnlocked,
+                            elseDefine,
+                            ensureUnlocked,
+                            endDefine,
+                            "BindInternal(key, factoryMethod);"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
                         name: "Rebind<T>",
-                        parameters: [new VariableModel(
-                            type: "T",
-                            name: "instance"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
                         lambda: false,
                         lines: 
                         [
@@ -217,10 +353,11 @@ public class ContextSourceGenerator : IIncrementalGenerator
                         keywords: ["public", "override"],
                         returnType: "void",
                         name: "Rebind<T>",
-                        parameters: [new VariableModel(
-                            type: "global::System.Func<T>",
-                            name: "factoryMethod"
-                        )],
+                        parameters: [
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
                         lambda: false,
                         lines: 
                         [
@@ -230,6 +367,52 @@ public class ContextSourceGenerator : IIncrementalGenerator
                             ensureUnlocked,
                             endDefine,
                             "RebindInternal(factoryMethod);"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Rebind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "T",
+                                name: "instance")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureUnlocked,
+                            elseDefine,
+                            ensureUnlocked,
+                            endDefine,
+                            "RebindInternal(key, instance);"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Rebind<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key"),
+                            new VariableModel(
+                                type: "global::System.Func<T>",
+                                name: "factoryMethod")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureUnlocked,
+                            elseDefine,
+                            ensureUnlocked,
+                            endDefine,
+                            "RebindInternal(key, factoryMethod);"
                         ]),
                     new NewLineModel(),
                     new MethodModel(
@@ -250,6 +433,26 @@ public class ContextSourceGenerator : IIncrementalGenerator
                     new NewLineModel(),
                     new MethodModel(
                         keywords: ["public", "override"],
+                        returnType: "void",
+                        name: "Unbind",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureUnlocked,
+                            elseDefine,
+                            ensureUnlocked,
+                            endDefine,
+                            "Unbind(key);"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
                         returnType: "T",
                         name: "Get<T>",
                         parameters: [],
@@ -262,6 +465,26 @@ public class ContextSourceGenerator : IIncrementalGenerator
                             ensureLocked,
                             endDefine,
                             "return GetInternal<T>();"
+                        ]),
+                    new NewLineModel(),
+                    new MethodModel(
+                        keywords: ["public", "override"],
+                        returnType: "T",
+                        name: "Get<T>",
+                        parameters: [
+                            new VariableModel(
+                                type: "string",
+                                name: "key")
+                        ],
+                        lambda: false,
+                        lines: 
+                        [
+                            unityAssertionsDefine,
+                            unityEnsureLocked,
+                            elseDefine,
+                            ensureLocked,
+                            endDefine,
+                            "return GetInternal<T>(key);"
                         ]),
                     new NewLineModel(),
                     new MethodModel(

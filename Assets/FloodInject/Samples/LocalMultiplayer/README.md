@@ -1,13 +1,14 @@
 # LOCAL MULTIPLAYER
 
-Beat 'em up 4 player co-op retro style game.
+Retro style side scroller 
 
-- [ ] Player Actions
-  - [ ] Jump
-  - [ ] Dash
-  - [ ] Stab
-  - [ ] Snipe
-  - [ ] Uppercut
-- [ ] Player HUD
+- [x] Player Actions
+  - [x] Jump
+  - [ ] Equipment
+    - [x] SO setup
+    - [ ] Fully functional gun
+    - [ ] Fully functional grenade
+    - [ ] IEquipment player frame icon (cooldown and image)
+- [x] Player HUD
 - [ ] Enemies
 - [ ] Environments Generation

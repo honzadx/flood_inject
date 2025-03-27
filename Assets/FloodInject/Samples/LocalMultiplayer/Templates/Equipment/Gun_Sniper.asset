@@ -10,9 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de433bcbfa104cbb8e82f65112b3fe1a, type: 3}
-  m_Name: Action_Kick
+  m_Name: Gun_Sniper
   m_EditorClassIdentifier: 
-  _displayName: Kick
+  _displayName: Sniper
   _description: 
   _icon: {fileID: 0}
-  _behaviour: {fileID: 1940454625282930532, guid: b6fa52433fffa4a42af8a1a4fa18c206, type: 3}
+  _visual: {fileID: -2413806693520163455, guid: 8840c39a7ae4a428a81a611a368a1211, type: 3}
+  _fireRate: 0.2
+  _bulletPrefab: {fileID: 8772453388930530672, guid: 09b378721b7df40bcbe986b233f12577, type: 3}
+  _bulletOffset: {x: 0.5, y: 0.5, z: 0}

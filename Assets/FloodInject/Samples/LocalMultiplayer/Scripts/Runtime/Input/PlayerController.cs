@@ -7,7 +7,11 @@ using UnityEngine.InputSystem;
 
 namespace LocalMultiplayer.Runtime
 {
-    public class PlayerController : MonoBehaviour
+    /// <summary>
+    /// Each connected input device will spawn a new instance of this class.
+    /// It captures input from the device and broadcasts it through relay.
+    /// </summary>
+    public sealed class PlayerController : MonoBehaviour
     {
         private static int _playerCount;
         
@@ -16,6 +20,8 @@ namespace LocalMultiplayer.Runtime
 
         private PlayerInputRelay _playerInputRelay;
         private InputDevice _inputDevice;
+        private bool _wasAction1Pressed;
+        private bool _wasAction2Pressed;
         private bool _initialized;
 
         public int PlayerIndex => _playerIndex;
@@ -31,31 +37,35 @@ namespace LocalMultiplayer.Runtime
             RefreshInputDevice();
         }
         
-        protected void Start()
+        private void Start()
         {
             if (!_initialized) Init();
         }
 
-        protected void OnMovement(InputValue value)
+        private void OnMovement(InputValue value)
         {
             if (!_initialized) Init();
             _playerInputRelay.HandleInput(PlayerActionType.Movement, value);
         }
         
-        protected void OnAction1(InputValue value)
+        private void OnAction1(InputValue value)
         {
             if (!_initialized) Init();
+            if (value.isPressed == _wasAction1Pressed) return;
             _playerInputRelay.HandleInput(PlayerActionType.Action1, value);
+            _wasAction1Pressed = value.isPressed;
         }
 
-        protected void OnAction2(InputValue value)
+        private void OnAction2(InputValue value)
         {
             if (!_initialized) Init();
+            if (value.isPressed == _wasAction2Pressed) return;
             _playerInputRelay.HandleInput(PlayerActionType.Action2, value);
+            _wasAction2Pressed = value.isPressed;
         }
         
         [UsedImplicitly] // Called implicitly by PlayerInput
-        protected IEnumerator OnDeviceLost()
+        private IEnumerator OnDeviceLost()
         {
             // Wait a single frame for the internal data to update
             yield return null;
@@ -64,7 +74,7 @@ namespace LocalMultiplayer.Runtime
         }
         
         [UsedImplicitly] // Called implicitly by PlayerInput
-        protected IEnumerator OnDeviceRegained()
+        private IEnumerator OnDeviceRegained()
         {
             // Wait a single frame for the internal data to update
             yield return null;
@@ -72,20 +82,15 @@ namespace LocalMultiplayer.Runtime
             Debug.Log($"Player[{_playerIndex}] OnDeviceRegained");
         }
 
-        protected void RefreshInputDevice()
+        private void RefreshInputDevice()
         {
             if (_playerInput.devices.Count == 0)
             {
                 _playerInputRelay.SetInputDevice(InputDevice.None);
                 return;
             }
-            
-            var inputDevice = _playerInput.currentControlScheme switch
-            {
-                "Keyboard" => InputDevice.Keyboard,
-                "Gamepad" => InputDevice.Gamepad,
-                _ => InputDevice.None
-            };
+
+            var inputDevice = Statics.ControlSchemeToInputDevice[_playerInput.currentControlScheme];
             if (inputDevice == InputDevice.Gamepad)
             {
                 if (_playerInput.GetDevice<Gamepad>() is DualShockGamepad dualShockGamepad)

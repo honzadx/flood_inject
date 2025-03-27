@@ -11,6 +11,7 @@ namespace LocalMultiplayer.Runtime
         [SerializeField] private int _maxHealth;
         [SerializeField] private int _health;
         
+        public Team Team => _team;
         public int MaxHealth => _maxHealth;
         public int Health => _health;
 
