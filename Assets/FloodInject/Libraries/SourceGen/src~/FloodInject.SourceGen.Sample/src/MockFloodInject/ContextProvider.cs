@@ -5,26 +5,38 @@ namespace FloodInject.Runtime
 {
     public static class ContextProvider
     {
-        private static readonly Dictionary<Type, BaseContext> _contexts = new();
-
-        public static void Register<T>(T context) where T : BaseContext
+        internal static readonly GlobalContext GlobalContext = new ();
+        internal static readonly SceneContextManager SceneContextManager = new();
+        internal static readonly Dictionary<Type, ScriptableContext> ScriptableContexts = new();
+        
+        public static void RegisterScriptableContext<T>(T context) where T : ScriptableContext
         {
-            _contexts.Add(context.ContextType, context);
+            ScriptableContexts.Add(typeof(T), context);
         }
 
-        public static void Unregister<T>(T context) where T : BaseContext
+        public static void UnregisterScriptableContext<T>() where T : ScriptableContext
         {
-            _contexts.Remove(context.ContextType);
+            ScriptableContexts.Remove(typeof(T));
         }
 
-        public static T GetContext<T>() where T : BaseContext
+        public static T GetScriptableContext<T>() where T : ScriptableContext
         {
-            return (T)_contexts[typeof(T)];
+            return (T)ScriptableContexts[typeof(T)];
+        }
+        
+        public static SceneContext GetSceneContext(string sceneName)
+        {
+            return SceneContextManager.SceneContexts[sceneName];
         }
 
-        public static GlobalContext GetContext()
+        public static GlobalContext GetGlobalContext()
         {
-            return (GlobalContext)_contexts[typeof(GlobalContext)];
+            return GlobalContext;
         }
+    }
+    
+    internal sealed class SceneContextManager
+    {
+        internal readonly Dictionary<string, SceneContext> SceneContexts = new();
     }
 }

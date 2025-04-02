@@ -1,5 +1,4 @@
 using System;
-using UnityEngine.Assertions;
 
 namespace FloodInject.Runtime
 {
@@ -12,11 +11,8 @@ namespace FloodInject.Runtime
             _factoryMethod = factoryMethod;
         }
 
-        public override ContractType ContractType => ContractType.Transient;
-
         public override TBaseService Fulfill<TBaseService>()
         {
-            Assert.IsTrue(typeof(TBaseService).IsAssignableFrom(typeof(TService)));
             if (_factoryMethod() is not TBaseService result)
             {
                 throw new Exception($"Factory method returned unexpected type {typeof(TService)}");

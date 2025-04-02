@@ -3,29 +3,26 @@ using System;
 namespace FloodInject.Runtime
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class GenerateContextAttribute : Attribute { }
-    
-    [AttributeUsage(AttributeTargets.Class)]
-    public class ContextListenerAttribute : Attribute
+    public class FloodAttribute : Attribute
     {
         public bool IsOverride { get; }
-        public AutoInjectType AutoInjectType { get; }
 
-        public ContextListenerAttribute(bool isOverride = false, AutoInjectType autoInjectType = AutoInjectType.None)
+        public FloodAttribute(bool isOverride = false)
         {
             IsOverride = isOverride;
-            AutoInjectType = autoInjectType;
         }
     }
     
     [AttributeUsage(AttributeTargets.Field)]
-    public class InjectAttribute : Attribute 
+    public class ResolveAttribute : Attribute 
     {
-        public Type ContextType { get; }
+        ///<summary>Global context resolution</summary>
+        public ResolveAttribute() { }
 
-        public InjectAttribute(Type contextType)
-        {
-            ContextType = contextType;
-        }
+        ///<summary>Scriptable context resolution</summary>
+        public ResolveAttribute(Type scriptableContext) { }
+        
+        ///<summary>Scene context resolution</summary>
+        public ResolveAttribute(string sceneContext) { }
     }
 }

@@ -4,20 +4,18 @@ using UnityEngine;
 
 namespace FloodInject.Runtime
 {
-    public abstract class BaseContext : ScriptableObject
+    public abstract class ScriptableContext : ScriptableObject, IContext
     {
-        public abstract System.Type ContextType { get; }
-
         private readonly Dictionary<Type, BaseContract> _contracts = new ();
 
         public void Register()
         {
-            ContextProvider.Register(this);
+            ContextProvider.RegisterScriptableContext(this);
         }
     
         public void Unregister()
         {
-            ContextProvider.Register(this);
+            ContextProvider.RegisterScriptableContext(this);
         }
         
         public void Bind<T>(T value)

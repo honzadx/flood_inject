@@ -11,8 +11,6 @@ namespace FloodInject.Runtime
             _service = service;
         }
 
-        public override ContractType ContractType => ContractType.Direct;
-
         public override TBaseService Fulfill<TBaseService>()
         {
             if (_service is not TBaseService baseService)

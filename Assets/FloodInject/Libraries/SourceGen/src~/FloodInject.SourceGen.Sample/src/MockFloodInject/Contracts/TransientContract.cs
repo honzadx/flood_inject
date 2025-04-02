@@ -11,8 +11,6 @@ namespace FloodInject.Runtime
             _factoryMethod = factoryMethod;
         }
 
-        public override ContractType ContractType => ContractType.Transient;
-
         public override TBaseService Fulfill<TBaseService>()
         {
             if (_factoryMethod() is not TBaseService result)
