@@ -44,6 +44,12 @@ internal record MethodModel : BaseTypeElementModel
                 codeWriter.Write(", ");
             }
         }
+
+        if (Lines.Length == 0)
+        {
+            codeWriter.WriteLine(");");
+            return;
+        }
         codeWriter.WriteLine(")");
         if (Lambda)
         {

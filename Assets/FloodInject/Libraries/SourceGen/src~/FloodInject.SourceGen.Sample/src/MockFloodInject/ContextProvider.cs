@@ -1,30 +1,16 @@
 using System;
-using System.Collections.Generic;
 
 namespace FloodInject.Runtime
 {
-    public static class ContextProvider
+    public static class ContextProvider<T> where T : BaseContext
     {
-        private static readonly Dictionary<Type, BaseContext> _contexts = new();
-
-        public static void Register<T>(T context) where T : BaseContext
+        private static T _context;
+        
+        static ContextProvider()
         {
-            _contexts.Add(context.ContextType, context);
+            _context = Activator.CreateInstance<T>();
         }
-
-        public static void Unregister<T>(T context) where T : BaseContext
-        {
-            _contexts.Remove(context.ContextType);
-        }
-
-        public static T GetContext<T>() where T : BaseContext
-        {
-            return (T)_contexts[typeof(T)];
-        }
-
-        public static GlobalContext GetContext()
-        {
-            return (GlobalContext)_contexts[typeof(GlobalContext)];
-        }
+        
+        public static T Get() => _context;
     }
 }

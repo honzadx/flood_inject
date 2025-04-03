@@ -7,9 +7,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 [Generator]
-public class InjectSourceGenerator : IIncrementalGenerator
+public class FloodSourceGenerator : IIncrementalGenerator
 {
-    private record InjectMetadata(string FieldType, string FieldName, string Context)
+    private record ResolveMetadata(string FieldType, string FieldName, string Context)
     {
         internal string FieldType { get; } = FieldType;
         internal string FieldName { get; } = FieldName;
@@ -20,7 +20,7 @@ public class InjectSourceGenerator : IIncrementalGenerator
     {
         var provider = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                "FloodInject.Runtime.ContextListenerAttribute",
+                "FloodInject.Runtime.FloodAttribute",
                 predicate: static (s, _) => s is ClassDeclarationSyntax,
                 transform: static (ctx, _) => Transform(ctx))
             .Where(t => t != null);
@@ -40,88 +40,92 @@ public class InjectSourceGenerator : IIncrementalGenerator
         }
 
         List<MethodModel> methodModelList = new();
-        List<InjectMetadata> injectMetadataList = new();
-        var injectIsOverride = false;
-        var attribute = syntax.GetAttribute("FloodInject.Runtime.ContextListenerAttribute", context);
+        List<ResolveMetadata> resolveMetadataList = new();
+        var isOverride = false;
+        var attribute = syntax.GetAttribute("FloodInject.Runtime.FloodAttribute", context);
         var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
         if (attributeArgumentList != null)
         {
             foreach (var argument in attributeArgumentList.Arguments)
             {
-                if (bool.TryParse(argument.Expression.GetFirstToken().Text, out bool isOverride))
-                {
-                    injectIsOverride = isOverride;
-                }
-                switch (argument.Expression.ToString())
-                {
-                    case "AutoInjectType.Constructor":
-                        methodModelList.Add(new MethodModel(
-                            keywords: ["public"],
-                            returnType: null,
-                            name: syntax.Identifier.ValueText,
-                            parameters: [],
-                            lambda: false,
-                            lines: ["Inject();"]));
-                        break;
-                    case "AutoInjectType.Unity":
-                        methodModelList.Add(new MethodModel(
-                            keywords: ["protected", "new"],
-                            returnType: "void",
-                            name: "Start",
-                            parameters: [],
-                            lambda: false,
-                            lines: ["Inject();"]));
-                        break;
-                }
+                bool.TryParse(argument.Expression.GetFirstToken().Text, out isOverride);
             }
         }
         
         foreach (var field in allFields)
         {
-            if (!field.HasAttribute("FloodInject.Runtime.InjectAttribute", context))
+            if (!field.HasAttribute("FloodInject.Runtime.ResolveAttribute", context))
             {
                 continue;
             }
 
-            var type = field
+            var argumentListSyntax = field
                 .GetFirstChildOfType<AttributeListSyntax>()
                 .GetFirstChildOfType<AttributeSyntax>()
-                .GetFirstChildOfType<AttributeArgumentListSyntax>()
-                .Arguments[0]
-                .Expression
-                .GetFirstChildOfType<TypeSyntax>();
-            
-            InjectMetadata injectMetadata = new InjectMetadata(
-                FieldType: field.Declaration.Type.ToString(),
-                FieldName: field.Declaration.Variables[0].Identifier.Text, 
-                Context: type.ToString());
-            injectMetadataList.Add(injectMetadata);
+                .GetFirstChildOfType<AttributeArgumentListSyntax>();
+
+            if (argumentListSyntax == null)
+            {
+                resolveMetadataList.Add(new ResolveMetadata(
+                    FieldType: field.Declaration.Type.ToString(),
+                    FieldName: field.Declaration.Variables[0].Identifier.Text,
+                    Context: "GlobalContext"
+                ));
+            }
+            else
+            {
+                var type = argumentListSyntax.Arguments[0].Expression.GetFirstChildOfType<TypeSyntax>();
+                ResolveMetadata resolveMetadata = new ResolveMetadata(
+                    FieldType: field.Declaration.Type.ToString(),
+                    FieldName: field.Declaration.Variables[0].Identifier.Text, 
+                    Context: type.ToString()
+                );
+                resolveMetadataList.Add(resolveMetadata);
+            }
         }
 
-        if (injectMetadataList.Count == 0)
+        if (resolveMetadataList.Count == 0)
         {
             return null;
         }
         
-        string[] injectMethodLines = new string[injectIsOverride ? injectMetadataList.Count + 1 : injectMetadataList.Count];
-        injectMethodLines[injectMethodLines.Length - 1] = "base.Inject();";
+        string[] resolveMethodLines = new string[isOverride ? resolveMetadataList.Count + 3 : resolveMetadataList.Count + 2];
+        resolveMethodLines[0] = "PreConstruct();";
+        resolveMethodLines[resolveMethodLines.Length - 2] = "base.Construct();";
+        resolveMethodLines[resolveMethodLines.Length - 1] = "PostConstruct();";
 
-        int index = 0;
-        foreach (var injectMetadata in injectMetadataList)
+        int index = 1;
+        foreach (var injectMetadata in resolveMetadataList)
         {
-            injectMethodLines[index++] =
-                $"{injectMetadata.FieldName} = ContextProvider.GetContext<{injectMetadata.Context}>().Get<{injectMetadata.FieldType}>();";
+            resolveMethodLines[index++] =
+                $"{injectMetadata.FieldName} = ContextProvider<{injectMetadata.Context}>.Get().Resolve<{injectMetadata.FieldType}>();";
         }
 
-        var injectMethod = new MethodModel(
-            keywords: injectIsOverride ? ["public", "override"] : ["public", "virtual"],
+        var constructMethod = new MethodModel(
+            keywords: isOverride ? ["public", "override"] : ["public", "virtual"],
             returnType: "void",
-            name: "Inject",
+            name: "Construct",
             parameters: [],
             lambda: false,
-            lines: injectMethodLines
+            lines: resolveMethodLines
         );
-        methodModelList.Add(injectMethod);
+        methodModelList.Add(constructMethod);
+        methodModelList.Add(new MethodModel(
+            keywords: ["partial"],
+            returnType: "void",
+            name: "PreConstruct",
+            parameters: [],
+            lambda: false,
+            lines: []
+        ));
+        methodModelList.Add(new MethodModel(
+            keywords: ["partial"],
+            returnType: "void",
+            name: "PostConstruct",
+            parameters: [],
+            lambda: false,
+            lines: []
+        ));
 
         var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
         var elements = methodModelList.Select(m => m as BaseTypeElementModel).ToArray();

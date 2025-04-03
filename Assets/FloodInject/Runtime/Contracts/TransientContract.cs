@@ -3,25 +3,22 @@ using UnityEngine.Assertions;
 
 namespace FloodInject.Runtime
 {
-    internal sealed class TransientContract<TService> : BaseContract
+    internal sealed class TransientContract<T> : BaseContract
     {
-        private Func<TService> _factoryMethod;
+        private readonly Func<T> _factoryMethod;
         
-        public TransientContract(Func<TService> factoryMethod)
+        public TransientContract(Func<T> factoryMethod)
         {
             _factoryMethod = factoryMethod;
         }
 
-        public override ContractType ContractType => ContractType.Transient;
-
-        public override TBaseService Fulfill<TBaseService>()
+        public override T1 Fulfill<T1>()
         {
-            Assert.IsTrue(typeof(TBaseService).IsAssignableFrom(typeof(TService)));
-            if (_factoryMethod() is not TBaseService result)
+            if (_factoryMethod() is not T1 baseInstance)
             {
-                throw new Exception($"Factory method returned unexpected type {typeof(TService)}");
+                throw new Exception($"Factory method returned unexpected type {typeof(T)}");
             }
-            return result;
+            return baseInstance;
         }
     }
 }
