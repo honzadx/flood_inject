@@ -1,0 +1,9 @@
+{
+	"name": "Samples.LocalMultiplayer",
+	"references":
+	[ 
+		"FloodInject.Runtime",
+		"Unity.TextMeshPro",
+		"Unity.InputSystem"
+	]
+}

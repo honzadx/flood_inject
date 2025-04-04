@@ -6,8 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/FloodInject/Samples/LocalMultiplayer/Scenes/0_Core.unity
+    guid: bdebdb8997740408ba5732fd8a58af9a
+  - enabled: 1
+    path: Assets/FloodInject/Samples/LocalMultiplayer/Scenes/1_MainMenu.unity
+    guid: 027264c676f484ee1b8f2b8920b0b860
+  - enabled: 1
+    path: Assets/FloodInject/Samples/LocalMultiplayer/Scenes/1_Gameplay.unity
+    guid: 058f603188f4d4584978603895be7a4a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
