@@ -2,6 +2,6 @@ namespace FloodInject.Runtime
 {
     internal abstract class BaseContract
     {
-        public abstract T Fulfill<T>();
+        public abstract T Resolve<T>();
     }
 }

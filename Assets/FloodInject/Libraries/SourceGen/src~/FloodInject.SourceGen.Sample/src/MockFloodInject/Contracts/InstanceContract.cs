@@ -11,7 +11,7 @@ namespace FloodInject.Runtime
             _instance = instance;
         }
 
-        public override T1 Fulfill<T1>()
+        public override T1 Resolve<T1>()
         {
             if (_instance is not T1 baseInstance)
             {

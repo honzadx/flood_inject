@@ -12,7 +12,7 @@ namespace FloodInject.Runtime
             _factoryMethod = factoryMethod;
         }
 
-        public override T1 Fulfill<T1>()
+        public override T1 Resolve<T1>()
         {
             if (_factoryMethod() is not T1 baseInstance)
             {

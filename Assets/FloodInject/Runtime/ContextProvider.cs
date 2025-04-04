@@ -1,4 +1,4 @@
-using System;
+using UnityEngine;
 
 namespace FloodInject.Runtime
 {
@@ -8,7 +8,7 @@ namespace FloodInject.Runtime
         
         static ContextProvider()
         {
-            _context = Activator.CreateInstance<T>();
+            _context = ScriptableObject.CreateInstance<T>();
         }
         
         public static T Get() => _context;
