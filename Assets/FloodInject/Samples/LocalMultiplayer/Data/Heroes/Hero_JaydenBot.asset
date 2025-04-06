@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 294288ae943e4c088ac1a54bed79a791, type: 3}
-  m_Name: Hero_Green
+  m_Name: Hero_JaydenBot
   m_EditorClassIdentifier: 
-  <DisplayName>k__BackingField: Green
-  <Color>k__BackingField: {r: 0.18431373, g: 0.83137256, b: 0.5058824, a: 1}
+  <DisplayName>k__BackingField: JaydenBot
+  <Portrait>k__BackingField: {fileID: -573282245, guid: 36db75b2482a74eaf9540ed43e32bab5, type: 3}

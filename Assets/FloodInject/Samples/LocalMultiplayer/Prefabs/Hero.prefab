@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8082317306375190047}
   - component: {fileID: 7515733363580907008}
   m_Layer: 0
-  m_Name: Renderer
+  m_Name: PortraitRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,7 +133,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60f8737cf79d4d58853860f9dbe7cd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spriteRenderer: {fileID: 7515733363580907008}
+  _portraitRenderer: {fileID: 7515733363580907008}
+  _movementSpeed: 5
 --- !u!61 &9018801329832234704
 BoxCollider2D:
   m_ObjectHideFlags: 0

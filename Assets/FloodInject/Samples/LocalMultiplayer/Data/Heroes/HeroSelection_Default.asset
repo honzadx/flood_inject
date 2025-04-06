@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: HeroSelection_Default
   m_EditorClassIdentifier: 
   <Heroes>k__BackingField:
+  - {fileID: 11400000, guid: 9f82bb144ecd34ae0b7ea66f5f0256dd, type: 2}
   - {fileID: 11400000, guid: 0231037fa5520446f8f2ad4b7c202ce5, type: 2}
   - {fileID: 11400000, guid: 6da589fca7e6747f1a03d594b5773f41, type: 2}
+  - {fileID: 11400000, guid: 1225d55e3fbb34438a086724e9e46723, type: 2}

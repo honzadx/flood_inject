@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class Hero : MonoBehaviour
 {
-    [SerializeField] SpriteRenderer _spriteRenderer;
+    [SerializeField] SpriteRenderer _portraitRenderer;
+    [SerializeField] float _movementSpeed;
     
     private PlayerController _playerController;
     private HeroTemplate _heroTemplate;
@@ -11,6 +12,11 @@ public class Hero : MonoBehaviour
     {
         _playerController = playerController;
         _heroTemplate = heroTemplate;
-        _spriteRenderer.color = _heroTemplate.Color;
+        _portraitRenderer.sprite = _heroTemplate.Portrait;
+    }
+
+    protected void FixedUpdate()
+    {
+        transform.Translate(_movementSpeed * Time.fixedDeltaTime * _playerController.MovementDirection);
     }
 }

@@ -19,7 +19,10 @@ public partial class HeroSelectionCard : MonoBehaviour
     
     [SerializeField] int _playerIndex;
     [SerializeField] Image _colorBackgroundImage;
+    [SerializeField] Image _portraitImage;
     [SerializeField] TextMeshProUGUI _stateText;
+    [SerializeField] ColorTemplate _inactiveColor;
+    [SerializeField] ColorTemplate _activeColor;
     
     [Resolve(typeof(PlayerContext))] PlayerManager _playerManager;
     [Resolve] HeroSelection _heroSelection;
@@ -33,23 +36,23 @@ public partial class HeroSelectionCard : MonoBehaviour
     
     public void Init()
     {
-        _heroIndex = 0;
-        SetState(_playerController != null ? State.SelectingHero : State.NoDevice);
-        RefreshVisual();
-    }
-
-    private void Start()
-    {
         Construct();
+
+        _heroIndex = 0;
         Assert.IsTrue(_playerIndex < _playerManager.Controllers.Length);
+        UnbindPlayerController(_playerController);
         BindPlayerController(_playerManager.Controllers[_playerIndex]);
+        
         SetState(_playerController != null ? State.SelectingHero : State.NoDevice);
         RefreshVisual();
+        
+        _playerManager.ControllerStateChangedEvent -= OnControllerStateChanged;
         _playerManager.ControllerStateChangedEvent += OnControllerStateChanged;
     }
 
     private void OnDestroy()
     {
+        UnbindPlayerController(_playerController);
         _playerManager.ControllerStateChangedEvent -= OnControllerStateChanged;
     }
 
@@ -66,19 +69,25 @@ public partial class HeroSelectionCard : MonoBehaviour
 
     private void RefreshVisual()
     {
+        var hero = _heroSelection.Heroes[_heroIndex];
+        _portraitImage.sprite = hero.Portrait;
+        _portraitImage.color = _state == State.NoDevice ? _inactiveColor.Color : _activeColor.Color;
         switch (_state)
         {
             case State.NoDevice:
                 _stateText.text = "no device";
-                _colorBackgroundImage.color = Color.white;
+                _portraitImage.rectTransform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+                _portraitImage.rectTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 5.0f);
                 break;
             case State.SelectingHero:
                 _stateText.text = "hero selection";
-                _colorBackgroundImage.color = _heroSelection.Heroes[_heroIndex].Color;
+                _portraitImage.rectTransform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
+                _portraitImage.rectTransform.localRotation = Quaternion.Euler(0.0f, 0.0f, 5.0f);
                 break;
             case State.Ready:
                 _stateText.text = "ready";
-                _colorBackgroundImage.color = _heroSelection.Heroes[_heroIndex].Color;
+                _portraitImage.rectTransform.localScale = Vector3.one;
+                _portraitImage.rectTransform.localRotation = Quaternion.identity;
                 break;
         }
     } 
@@ -90,9 +99,9 @@ public partial class HeroSelectionCard : MonoBehaviour
         {
             return;
         }
-        playerController.OnMoveEvent += OnMove;
-        playerController.OnAction1Event += OnAction1;
-        playerController.OnAction2Event += OnAction2;
+        playerController.MoveEvent += OnMove;
+        playerController.Action1Event += OnAction1;
+        playerController.Action2Event += OnAction2;
     }
     
     private void UnbindPlayerController(PlayerController playerController)
@@ -102,9 +111,9 @@ public partial class HeroSelectionCard : MonoBehaviour
         {
             return;
         }
-        playerController.OnMoveEvent -= OnMove;
-        playerController.OnAction1Event -= OnAction1;
-        playerController.OnAction2Event -= OnAction2;
+        playerController.MoveEvent -= OnMove;
+        playerController.Action1Event -= OnAction1;
+        playerController.Action2Event -= OnAction2;
     }
 
     private void OnControllerStateChanged(int playerIndex, PlayerController playerController)
