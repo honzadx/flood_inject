@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Hero : MonoBehaviour
+public class HeroBehavior : MonoBehaviour
 {
     [SerializeField] SpriteRenderer _portraitRenderer;
     [SerializeField] float _movementSpeed;

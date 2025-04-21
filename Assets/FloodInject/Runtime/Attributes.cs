@@ -3,10 +3,7 @@ using System;
 namespace FloodInject.Runtime
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class FloodAttribute : Attribute
-    {
-        public FloodAttribute(bool isOverride = false) { }
-    }
+    public class FloodAttribute : Attribute { }
     
     [AttributeUsage(AttributeTargets.Field)]
     public class ResolveAttribute : Attribute 

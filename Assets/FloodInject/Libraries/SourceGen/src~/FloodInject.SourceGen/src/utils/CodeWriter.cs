@@ -59,7 +59,6 @@ public sealed class CodeWriter : IndentedTextWriter
     }
     
     public CodeWriter(TextWriter writer) : base(writer) { }
-    public CodeWriter(TextWriter writer, string tabString) : base(writer, tabString) { }
 
     public Scope CreateScope(
         string prefix = null, 

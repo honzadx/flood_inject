@@ -5,7 +5,7 @@ using UnityEngine;
 [Flood]
 public partial class GameplayGameMode : BaseGameMode
 {
-    [SerializeField] Hero _heroPrefab;
+    [SerializeField] HeroBehavior _heroBehaviorPrefab;
     
     [Resolve] HeroSelectionResult _heroSelectionResult;
     [Resolve(typeof(PlayerContext))] PlayerManager _playerManager;
@@ -15,7 +15,7 @@ public partial class GameplayGameMode : BaseGameMode
         Construct();
         foreach (var playerSelection in _heroSelectionResult.PlayerSelections)
         {
-            var heroInstance = Instantiate(_heroPrefab);
+            var heroInstance = Instantiate(_heroBehaviorPrefab);
             var playerController = _playerManager.Controllers[playerSelection.PlayerIndex];
             var heroTemplate = playerSelection.SelectedHeroTemplate;
             heroInstance.Init(playerController, heroTemplate);

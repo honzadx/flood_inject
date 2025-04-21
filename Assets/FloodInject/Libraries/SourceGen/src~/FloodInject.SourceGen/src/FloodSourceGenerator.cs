@@ -9,11 +9,11 @@ using Microsoft.CodeAnalysis.Text;
 [Generator]
 public class FloodSourceGenerator : IIncrementalGenerator
 {
-    private record ResolveMetadata(string FieldType, string FieldName, string Context)
+    private record ResolveMetadata(string fieldType, string fieldName, string context)
     {
-        internal string FieldType { get; } = FieldType;
-        internal string FieldName { get; } = FieldName;
-        internal string Context { get; } = Context;
+        internal string fieldType { get; } = fieldType;
+        internal string fieldName { get; } = fieldName;
+        internal string context { get; } = context;
     }
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -41,16 +41,7 @@ public class FloodSourceGenerator : IIncrementalGenerator
 
         List<MethodModel> methodModelList = new();
         List<ResolveMetadata> resolveMetadataList = new();
-        var isOverride = false;
-        var attribute = syntax.GetAttribute("FloodInject.Runtime.FloodAttribute", context);
-        var attributeArgumentList = attribute.GetFirstChildOfType<AttributeArgumentListSyntax>();
-        if (attributeArgumentList != null)
-        {
-            foreach (var argument in attributeArgumentList.Arguments)
-            {
-                bool.TryParse(argument.Expression.GetFirstToken().Text, out isOverride);
-            }
-        }
+        var isOverride = IsOverride(context.SemanticModel, syntax);
         
         foreach (var field in allFields)
         {
@@ -67,18 +58,18 @@ public class FloodSourceGenerator : IIncrementalGenerator
             if (argumentListSyntax == null)
             {
                 resolveMetadataList.Add(new ResolveMetadata(
-                    FieldType: field.Declaration.Type.ToString(),
-                    FieldName: field.Declaration.Variables[0].Identifier.Text,
-                    Context: "GlobalContext"
+                    fieldType: field.Declaration.Type.ToString(),
+                    fieldName: field.Declaration.Variables[0].Identifier.Text,
+                    context: "GlobalContext"
                 ));
             }
             else
             {
                 var type = argumentListSyntax.Arguments[0].Expression.GetFirstChildOfType<TypeSyntax>();
                 ResolveMetadata resolveMetadata = new ResolveMetadata(
-                    FieldType: field.Declaration.Type.ToString(),
-                    FieldName: field.Declaration.Variables[0].Identifier.Text, 
-                    Context: type.ToString()
+                    fieldType: field.Declaration.Type.ToString(),
+                    fieldName: field.Declaration.Variables[0].Identifier.Text, 
+                    context: type.ToString()
                 );
                 resolveMetadataList.Add(resolveMetadata);
             }
@@ -98,7 +89,7 @@ public class FloodSourceGenerator : IIncrementalGenerator
         foreach (var injectMetadata in resolveMetadataList)
         {
             resolveMethodLines[index++] =
-                $"{injectMetadata.FieldName} = ContextProvider<{injectMetadata.Context}>.Get().Resolve<{injectMetadata.FieldType}>();";
+                $"{injectMetadata.fieldName} = ContextProvider<{injectMetadata.context}>.Get().Resolve<{injectMetadata.fieldType}>();";
         }
 
         var constructMethod = new MethodModel(
@@ -139,6 +130,28 @@ public class FloodSourceGenerator : IIncrementalGenerator
             elements: elements);
         
         return typeModel;
+    }
+
+    private static bool IsOverride(SemanticModel semanticModel, ClassDeclarationSyntax classSyntax)
+    {
+        var attributeName = "FloodAttribute";
+
+        var type = (INamedTypeSymbol)semanticModel.GetDeclaredSymbol(classSyntax);
+        var baseType = type!.BaseType;
+        while (baseType != null)
+        {
+            foreach (var attribute in baseType.GetAttributes())
+            {
+                var attributeClass = attribute.AttributeClass;
+                if (attributeClass != null && attributeClass.Name == attributeName)
+                {
+                    return true;
+                }
+            }
+            baseType = baseType.BaseType;
+        }
+    
+        return false;
     }
 
     private static void Generate(SourceProductionContext context, TypeModel typeModel)
