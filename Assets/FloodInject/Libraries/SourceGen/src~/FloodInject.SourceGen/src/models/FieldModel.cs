@@ -1,34 +1,30 @@
 using System.Collections.Immutable;
 
-internal record FieldModel : BaseTypeElementModel
+internal record FieldModel(
+    ImmutableArray<string> keywords, 
+    string type, 
+    string name, 
+    string value) : BaseElementModel
 {
-    public ImmutableArray<string> Keywords { get; }
-    public string Type { get; }
-    public string Name { get; }
-    public string Value { get; }
-
-    public FieldModel(string[] keywords, string type, string name, string value)
-    {
-        Keywords = ImmutableArray.Create(keywords);
-        Type = type;
-        Name = name;
-        Value = value;
-    }
+    public ImmutableArray<string> keywords { get; } = keywords;
+    public string type { get; } = type;
+    public string name { get; } = name;
+    public string value { get; } = value;
     
     public override void Build(CodeWriter codeWriter)
     {
-        foreach (var keyword in Keywords)
+        foreach (var keyword in keywords)
         {
             codeWriter.Write($"{keyword} ");
         }
 
-        if (string.IsNullOrEmpty(Value))
+        if (string.IsNullOrEmpty(value))
         {
-            codeWriter.WriteLine($"{Type} {Name};");
+            codeWriter.WriteLine($"{type} {name};");
         }
         else
         {
-            codeWriter.WriteLine($"{Type} {Name} = {Value};");
+            codeWriter.WriteLine($"{type} {name} = {value};");
         }
     }
 }

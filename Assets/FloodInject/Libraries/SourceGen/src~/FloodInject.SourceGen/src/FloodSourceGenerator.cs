@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -80,54 +81,56 @@ public class FloodSourceGenerator : IIncrementalGenerator
             return null;
         }
         
-        string[] resolveMethodLines = new string[isOverride ? resolveMetadataList.Count + 3 : resolveMetadataList.Count + 2];
-        resolveMethodLines[0] = "PreConstruct();";
-        resolveMethodLines[resolveMethodLines.Length - 2] = "base.Construct();";
-        resolveMethodLines[resolveMethodLines.Length - 1] = "PostConstruct();";
+        string[] methodEntries = new string[isOverride ? resolveMetadataList.Count + 3 : resolveMetadataList.Count + 2];
+        methodEntries[0] = "PreConstruct();";
+        methodEntries[methodEntries.Length - 2] = "base.Construct();";
+        methodEntries[methodEntries.Length - 1] = "PostConstruct();";
 
         int index = 1;
         foreach (var injectMetadata in resolveMetadataList)
         {
-            resolveMethodLines[index++] =
+            methodEntries[index++] =
                 $"{injectMetadata.fieldName} = ContextProvider<{injectMetadata.context}>.Get().Resolve<{injectMetadata.fieldType}>();";
         }
 
         var constructMethod = new MethodModel(
-            keywords: isOverride ? ["public", "override"] : ["public", "virtual"],
-            returnType: "void",
+            keywords: isOverride 
+                ? ImmutableArray.Create(["public", "override"]) 
+                : ImmutableArray.Create(["public", "virtual"]),
+            type: "void",
             name: "Construct",
-            parameters: [],
+            parameters: ImmutableArray<VariableModel>.Empty, 
             lambda: false,
-            lines: resolveMethodLines
+            lines: ImmutableArray.Create(methodEntries)
         );
         methodModelList.Add(constructMethod);
         methodModelList.Add(new MethodModel(
-            keywords: ["partial"],
-            returnType: "void",
+            keywords: ImmutableArray.Create(["partial"]),
+            type: "void",
             name: "PreConstruct",
-            parameters: [],
+            parameters: ImmutableArray<VariableModel>.Empty, 
             lambda: false,
-            lines: []
+            lines: ImmutableArray<string>.Empty
         ));
         methodModelList.Add(new MethodModel(
-            keywords: ["partial"],
-            returnType: "void",
+            keywords: ImmutableArray.Create(["partial"]),
+            type: "void",
             name: "PostConstruct",
-            parameters: [],
+            parameters: ImmutableArray<VariableModel>.Empty, 
             lambda: false,
-            lines: []
+            lines: ImmutableArray<string>.Empty
         ));
 
         var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
-        var elements = methodModelList.Select(m => m as BaseTypeElementModel).ToArray();
+        var elements = methodModelList.Select(m => m as BaseElementModel).ToArray();
         
         TypeModel typeModel = new TypeModel(
-            usings: usings,
+            usings: ImmutableArray.Create(usings),
             @namespace: syntax.GetNamespaceName(),
-            keywords: ["partial"],
+            keywords: ImmutableArray.Create(["partial"]),
             kind: "class",
             name: syntax.Identifier.ValueText,
-            elements: elements);
+            elements: ImmutableArray.Create(elements));
         
         return typeModel;
     }
@@ -161,6 +164,6 @@ public class FloodSourceGenerator : IIncrementalGenerator
         using CodeWriter codeWriter = new CodeWriter(sourceStreamWriter);
         typeModel.Build(codeWriter);
         codeWriter.Flush();
-        context.AddSource($"{typeModel.Name}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
+        context.AddSource($"{typeModel.name}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
     }
 }

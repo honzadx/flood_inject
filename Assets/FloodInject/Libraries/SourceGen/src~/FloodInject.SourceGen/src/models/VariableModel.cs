@@ -1,16 +1,12 @@
-internal record VariableModel : BaseElementModel
+internal record VariableModel(
+    string name, 
+    string type) : BaseElementModel
 {
-    public string Name { get; }
-    public string Type { get; }
-
-    public VariableModel(string name, string type)
-    {
-        Name = name;
-        Type = type;
-    }
+    public string name { get; } = name;
+    public string type { get; } = type;
 
     public override void Build(CodeWriter codeWriter)
     {
-        codeWriter.Write($"{Type} {Name}");
+        codeWriter.Write($"{type} {name}");
     }
 }

@@ -1,30 +1,22 @@
 using System.Collections.Immutable;
 
-internal record PropertyModel : BaseTypeElementModel
+internal record PropertyModel(
+    ImmutableArray<string> keywords,
+    string type,
+    string name,
+    string returnExpression) : BaseElementModel
 {
-    public ImmutableArray<string> Keywords { get; }
-    public string Type { get; }
-    public string Name { get; }
-    public string ReturnValue { get; }
-
-    public PropertyModel(
-        string[] keywords,
-        string type,
-        string name,
-        string returnValue)
-    {
-        Keywords = ImmutableArray.Create(keywords);
-        Type = type;
-        Name = name;
-        ReturnValue = returnValue;
-    }
+    public ImmutableArray<string> keywords { get; } = keywords;
+    public string type { get; } = type;
+    public string name { get; } = name;
+    public string returnExpression { get; } = returnExpression;
     
     public override void Build(CodeWriter codeWriter)
     {
-        foreach (var keyword in Keywords)
+        foreach (var keyword in keywords)
         {
             codeWriter.Write($"{keyword} ");
         }
-        codeWriter.WriteLine($"{Type} {Name} => {ReturnValue};");
+        codeWriter.WriteLine($"{type} {name} => {returnExpression};");
     }
 }

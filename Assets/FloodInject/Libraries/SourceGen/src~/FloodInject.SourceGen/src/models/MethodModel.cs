@@ -1,68 +1,58 @@
 using System.Collections.Immutable;
 
-internal record MethodModel : BaseTypeElementModel
+internal record MethodModel(
+    ImmutableArray<string> keywords, 
+    string type, 
+    string name, 
+    ImmutableArray<VariableModel> parameters,
+    bool lambda,
+    ImmutableArray<string> lines) : BaseElementModel
 {
-    public ImmutableArray<string> Keywords { get; }
-    public string ReturnType { get; }
-    public string Name { get; }
-    public ImmutableArray<VariableModel> Parameters { get; }
-    public bool Lambda { get; }
-    public string[] Lines { get; }
-
-    public MethodModel(
-        string[] keywords, 
-        string returnType, 
-        string name, 
-        VariableModel[] parameters,
-        bool lambda,
-        string[] lines)
-    {
-        Keywords = ImmutableArray.Create(keywords);
-        ReturnType = returnType;
-        Name = name;
-        Parameters = ImmutableArray.Create(parameters);
-        Lambda = lambda;
-        Lines = lines;
-    }
+    public ImmutableArray<string> keywords { get; } = keywords;
+    public string type { get; } = type;
+    public string name { get; } = name;
+    public ImmutableArray<VariableModel> parameters { get; } = parameters;
+    public bool lambda { get; } = lambda;
+    public ImmutableArray<string> lines { get; } = lines;
 
     public override void Build(CodeWriter codeWriter)
     {
-        foreach (var keyword in Keywords)
+        foreach (var keyword in keywords)
         {
             codeWriter.Write($"{keyword} ");
         }
-        if (!string.IsNullOrEmpty(ReturnType))
+        if (!string.IsNullOrEmpty(type))
         {
-            codeWriter.Write($"{ReturnType} ");
+            codeWriter.Write($"{type} ");
         }
-        codeWriter.Write($"{Name}(");
-        for (int i = 0; i < Parameters.Length; i++)
+        codeWriter.Write($"{name}(");
+        for (int i = 0; i < parameters.Length; i++)
         {
-            Parameters[i].Build(codeWriter);
-            if (i < Parameters.Length - 1)
+            parameters[i].Build(codeWriter);
+            if (i < parameters.Length - 1)
             {
                 codeWriter.Write(", ");
             }
         }
 
-        if (Lines.Length == 0)
+        if (lines.Length == 0)
         {
             codeWriter.WriteLine(");");
             return;
         }
         codeWriter.WriteLine(")");
-        if (Lambda)
+        if (lambda)
         {
             codeWriter.WriteLine(" => ");
-            if (Lines.Length == 1)
+            if (lines.Length == 1)
             {
-                codeWriter.WriteLine(Lines[0]);
+                codeWriter.WriteLine(lines[0]);
             }
-            else if (Lines.Length > 1)
+            else if (lines.Length > 1)
             {
                 using (codeWriter.CreateScope())
                 {
-                    foreach (var line in Lines)
+                    foreach (var line in lines)
                     {
                         codeWriter.WriteLine(line);
                     }
@@ -73,13 +63,13 @@ internal record MethodModel : BaseTypeElementModel
         {
             using (codeWriter.CreateScope())
             {
-                if (Lines.Length == 1)
+                if (lines.Length == 1)
                 {
-                    codeWriter.WriteLine(Lines[0]);
+                    codeWriter.WriteLine(lines[0]);
                 }
-                else if (Lines.Length > 1)
+                else if (lines.Length > 1)
                 {
-                    foreach (var line in Lines)
+                    foreach (var line in lines)
                     {
                         codeWriter.WriteLine(line);
                     }
