@@ -12,7 +12,7 @@ namespace FloodInject.Runtime
         public FloodResolveAttribute(Type stream) { }
     }
     
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class FloodStreamRequirementAttribute : Attribute 
     { 
         public FloodStreamRequirementAttribute(Type contract) { }

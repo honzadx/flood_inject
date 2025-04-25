@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-internal static class Extensions
+internal static class SyntaxNodeExtensions
 {
     public static IEnumerable<UsingDirectiveSyntax> GetUsingDirectives(this SyntaxNode self)
     {

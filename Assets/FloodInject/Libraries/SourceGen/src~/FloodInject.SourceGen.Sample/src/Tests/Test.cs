@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace SourceGenerators.Sample.Tests;
 
-public class HeroStreamSO : ADynamicStreamSO;
+[FloodStreamRequirement(typeof(Hero))]
+public partial class HeroStreamSO : AManagedStreamSO;
+
 public class PlayerStreamSO : ADynamicStreamSO;
 
 public class GameSettings { }

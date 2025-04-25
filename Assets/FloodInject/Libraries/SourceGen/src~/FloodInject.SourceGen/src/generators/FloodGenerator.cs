@@ -1,14 +1,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 [Generator]
-public class FloodSourceGenerator : IIncrementalGenerator
+public class FloodGenerator : IIncrementalGenerator
 {
     private record ResolveMetadata(string fieldType, string fieldName, string context)
     {
@@ -26,20 +23,20 @@ public class FloodSourceGenerator : IIncrementalGenerator
                 transform: static (ctx, _) => Transform(ctx))
             .Where(t => t != null);
         
-        context.RegisterSourceOutput(provider, Generate);
+        context.RegisterSourceOutput(provider, SourceGeneratorsUtils.Generate);
     }
 
     private static TypeModel Transform(GeneratorAttributeSyntaxContext context)
     {
         var syntax = (ClassDeclarationSyntax)context.TargetNode;
         var modifiersValid = syntax.HasModifiers(["public", "partial"]);
-        var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
 
         if (!modifiersValid)
         {
             return null;
         }
 
+        var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
         List<MethodModel> methodModelList = new();
         List<ResolveMetadata> resolveMetadataList = new();
         var isOverride = IsOverride(context.SemanticModel, syntax);
@@ -156,15 +153,5 @@ public class FloodSourceGenerator : IIncrementalGenerator
         }
     
         return false;
-    }
-
-    private static void Generate(SourceProductionContext context, TypeModel typeModel)
-    {
-        using MemoryStream sourceStream = new();
-        using StreamWriter sourceStreamWriter = new StreamWriter(sourceStream);
-        using CodeWriter codeWriter = new CodeWriter(sourceStreamWriter);
-        typeModel.Build(codeWriter);
-        codeWriter.Flush();
-        context.AddSource($"{typeModel.name}.g.cs", SourceText.From(sourceStream, Encoding.UTF8, canBeEmbedded: true));
     }
 }

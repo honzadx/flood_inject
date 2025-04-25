@@ -8,11 +8,11 @@ namespace FloodInject.Runtime
     { 
         public enum Phase
         {
-            Map,
+            Mapping,
             Resolve
         }
         
-        private Phase _currentPhase = Phase.Map;
+        private Phase _currentPhase = Phase.Mapping;
         
         public Phase currentPhase => _currentPhase;
         
@@ -28,7 +28,7 @@ namespace FloodInject.Runtime
             
             switch (newPhase)
             {
-                case Phase.Map:
+                case Phase.Mapping:
                     UnmapAllInternal();
                     break;
                 case Phase.Resolve:
@@ -45,37 +45,37 @@ namespace FloodInject.Runtime
         
         public override void Map<T>(T value)
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             MapInternal(value);
         }
 
         public override void Map<T>(Func<T> factoryMethod)
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             MapInternal(factoryMethod);
         }
 
         public override void Remap<T>(T value)
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             RemapInternal(value);
         }
 
         public override void Remap<T>(Func<T> factoryMethod)
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             RemapInternal(factoryMethod);
         }
 
         public override void Unmap<T>()
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             UnmapInternal<T>();
         }
         
         public override void UnmapAll()
         {
-            Assert.IsTrue(_currentPhase == Phase.Map);
+            Assert.IsTrue(_currentPhase == Phase.Mapping);
             UnmapAllInternal();
         }
 

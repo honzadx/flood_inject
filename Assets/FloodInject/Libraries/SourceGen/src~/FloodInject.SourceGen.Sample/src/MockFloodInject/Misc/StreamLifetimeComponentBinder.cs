@@ -3,7 +3,7 @@ using UnityEngine;
 namespace FloodInject.Runtime
 {
     [DefaultExecutionOrder(-5)]
-    public sealed class StreamLifetimeBehavior : MonoBehaviour
+    public sealed class StreamLifetimeComponentBinder : MonoBehaviour
     {
         [SerializeField] private AStreamSO _stream;
 
