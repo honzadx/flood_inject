@@ -2,7 +2,7 @@ using System;
 
 namespace FloodInject.Runtime
 {
-    internal sealed class TransientContract<T> : BaseContract
+    internal sealed class TransientContract<T> : AContract
     {
         private readonly Func<T> _factoryMethod;
         

@@ -6,7 +6,7 @@ internal record MethodModel(
     string name, 
     ImmutableArray<VariableModel> parameters,
     bool lambda,
-    ImmutableArray<string> lines) : BaseElementModel
+    ImmutableArray<string> lines) : AElementModel
 {
     public ImmutableArray<string> keywords { get; } = keywords;
     public string type { get; } = type;

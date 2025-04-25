@@ -46,7 +46,7 @@ public class FloodSourceGenerator : IIncrementalGenerator
         
         foreach (var field in allFields)
         {
-            if (!field.HasAttribute("FloodInject.Runtime.ResolveAttribute", context))
+            if (!field.HasAttribute("FloodInject.Runtime.FloodResolveAttribute", context))
             {
                 continue;
             }
@@ -61,7 +61,7 @@ public class FloodSourceGenerator : IIncrementalGenerator
                 resolveMetadataList.Add(new ResolveMetadata(
                     fieldType: field.Declaration.Type.ToString(),
                     fieldName: field.Declaration.Variables[0].Identifier.Text,
-                    context: "GlobalContext"
+                    context: "SharedStreamSO"
                 ));
             }
             else
@@ -81,16 +81,17 @@ public class FloodSourceGenerator : IIncrementalGenerator
             return null;
         }
         
-        string[] methodEntries = new string[isOverride ? resolveMetadataList.Count + 3 : resolveMetadataList.Count + 2];
+        string[] methodEntries = new string[isOverride ? resolveMetadataList.Count + 4 : resolveMetadataList.Count + 3];
         methodEntries[0] = "PreConstruct();";
+        methodEntries[1] = "var instance = StreamManager.instance;";
         methodEntries[methodEntries.Length - 2] = "base.Construct();";
         methodEntries[methodEntries.Length - 1] = "PostConstruct();";
 
-        int index = 1;
+        int index = 2;
         foreach (var injectMetadata in resolveMetadataList)
         {
             methodEntries[index++] =
-                $"{injectMetadata.fieldName} = ContextProvider<{injectMetadata.context}>.Get().Resolve<{injectMetadata.fieldType}>();";
+                $"{injectMetadata.fieldName} = instance.GetStream<{injectMetadata.context}>().Resolve<{injectMetadata.fieldType}>();";
         }
 
         var constructMethod = new MethodModel(
@@ -122,7 +123,7 @@ public class FloodSourceGenerator : IIncrementalGenerator
         ));
 
         var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
-        var elements = methodModelList.Select(m => m as BaseElementModel).ToArray();
+        var elements = methodModelList.Select(m => m as AElementModel).ToArray();
         
         TypeModel typeModel = new TypeModel(
             usings: ImmutableArray.Create(usings),

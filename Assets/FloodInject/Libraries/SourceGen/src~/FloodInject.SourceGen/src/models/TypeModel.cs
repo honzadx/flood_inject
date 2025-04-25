@@ -6,14 +6,14 @@ internal record TypeModel(
     ImmutableArray<string> keywords, 
     string kind,
     string name, 
-    ImmutableArray<BaseElementModel> elements) : BaseElementModel
+    ImmutableArray<AElementModel> elements) : AElementModel
 {
     internal ImmutableArray<string> usings { get; } = usings;
     public string @namespace { get; } = @namespace;
     public ImmutableArray<string> keywords { get; } = keywords;
     public string kind { get; } = kind;
     public string name { get; } = name;
-    public ImmutableArray<BaseElementModel> elements { get; } = elements;
+    public ImmutableArray<AElementModel> elements { get; } = elements;
 
     public override void Build(CodeWriter codeWriter)
     {

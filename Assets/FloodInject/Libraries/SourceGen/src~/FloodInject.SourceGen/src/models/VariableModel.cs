@@ -1,6 +1,6 @@
 internal record VariableModel(
     string name, 
-    string type) : BaseElementModel
+    string type) : AElementModel
 {
     public string name { get; } = name;
     public string type { get; } = type;

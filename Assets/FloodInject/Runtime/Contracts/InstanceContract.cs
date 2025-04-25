@@ -2,7 +2,7 @@ using System;
 
 namespace FloodInject.Runtime
 {
-    internal sealed class InstanceContract<T> : BaseContract
+    internal sealed class InstanceContract<T> : AContract
     {
         private readonly T _instance;
 

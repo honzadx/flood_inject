@@ -4,7 +4,7 @@ internal record PropertyModel(
     ImmutableArray<string> keywords,
     string type,
     string name,
-    string returnExpression) : BaseElementModel
+    string returnExpression) : AElementModel
 {
     public ImmutableArray<string> keywords { get; } = keywords;
     public string type { get; } = type;

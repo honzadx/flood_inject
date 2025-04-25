@@ -4,7 +4,7 @@ internal record FieldModel(
     ImmutableArray<string> keywords, 
     string type, 
     string name, 
-    string value) : BaseElementModel
+    string value) : AElementModel
 {
     public ImmutableArray<string> keywords { get; } = keywords;
     public string type { get; } = type;
