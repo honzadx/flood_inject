@@ -6,7 +6,7 @@ namespace FloodInject.Runtime
 {
     public class StreamManager
     {
-        private static StreamManager _instance;
+        private static StreamManager? _instance;
         public static StreamManager instance => _instance ??= new StreamManager();
 
         private readonly Dictionary<Type, AStreamSO> _streams = new ();
@@ -24,7 +24,7 @@ namespace FloodInject.Runtime
 
         public T GetStream<T>() where T : AStreamSO
         {
-            return _streams[typeof(T)] as T;
+            return (T)_streams[typeof(T)];
         }
 
         public void RegisterStream<T>(T stream) where T : AStreamSO

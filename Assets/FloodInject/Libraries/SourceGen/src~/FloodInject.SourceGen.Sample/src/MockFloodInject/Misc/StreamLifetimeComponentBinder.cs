@@ -16,5 +16,5 @@ namespace FloodInject.Runtime
         {
             StreamManager.instance.UnregisterStream(_stream);
         }
-    }   
+    }
 }

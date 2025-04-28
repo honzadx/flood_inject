@@ -29,7 +29,7 @@ public class FloodStreamRequirementGenerator : IIncrementalGenerator
             return null;
         }
 
-        if (ModelExtensions.GetDeclaredSymbol(context.SemanticModel, syntax) is not INamedTypeSymbol classSymbol)
+        if (context.SemanticModel.GetDeclaredSymbol(syntax) is not INamedTypeSymbol classSymbol)
         {
             return null;
         }
@@ -48,7 +48,7 @@ public class FloodStreamRequirementGenerator : IIncrementalGenerator
         foreach (var attributeList in syntax.AttributeLists)
         foreach (var attribute in attributeList.Attributes)
         {
-            if (ModelExtensions.GetSymbolInfo(context.SemanticModel, attribute).Symbol is not IMethodSymbol
+            if (context.SemanticModel.GetSymbolInfo(attribute).Symbol is not IMethodSymbol
                 attributeSymbol)
             {
                 continue;
@@ -70,12 +70,13 @@ public class FloodStreamRequirementGenerator : IIncrementalGenerator
         }
         
         List<string> methodLines = new();
-        methodLines.Add("return new [] {");
+        methodLines.Add("return new []");
+        methodLines.Add("{");
         for(int i = 0; i < requiredContracts.Count; i++)
         {
             methodLines.Add($"\ttypeof({requiredContracts[i]}),");
         }
-        methodLines[methodLines.Count - 1] += " };";
+        methodLines.Add("};");
 
         MethodModel methodModel = new MethodModel(
             keywords: ImmutableArray.Create(["public", "override"]),
@@ -87,7 +88,7 @@ public class FloodStreamRequirementGenerator : IIncrementalGenerator
 
         var usings = syntax.GetUsingDirectives().Select(s => s.Name.ToString()).ToArray();
 
-        AElementModel[] elements = { methodModel };
+        AElementModel[] elements = [methodModel];
         return new TypeModel(
             usings: ImmutableArray.Create(usings),
             @namespace: syntax.GetNamespaceName(),

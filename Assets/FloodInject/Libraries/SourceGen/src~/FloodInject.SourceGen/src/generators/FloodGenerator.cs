@@ -39,7 +39,7 @@ public class FloodGenerator : IIncrementalGenerator
         var allFields = syntax.GetChildrenOfType<FieldDeclarationSyntax>().ToArray();
         List<MethodModel> methodModelList = new();
         List<ResolveMetadata> resolveMetadataList = new();
-        var isOverride = IsOverride(context.SemanticModel, syntax);
+        var isConstructOverride = IsConstructOverride(context.SemanticModel, syntax);
         
         foreach (var field in allFields)
         {
@@ -77,8 +77,10 @@ public class FloodGenerator : IIncrementalGenerator
         {
             return null;
         }
+
+        var length = resolveMetadataList.Count + (isConstructOverride ? 3 : 4);
+        string[] methodEntries = new string[length];
         
-        string[] methodEntries = new string[isOverride ? resolveMetadataList.Count + 4 : resolveMetadataList.Count + 3];
         methodEntries[0] = "PreConstruct();";
         methodEntries[1] = "var instance = StreamManager.instance;";
         methodEntries[methodEntries.Length - 2] = "base.Construct();";
@@ -92,7 +94,7 @@ public class FloodGenerator : IIncrementalGenerator
         }
 
         var constructMethod = new MethodModel(
-            keywords: isOverride 
+            keywords: isConstructOverride 
                 ? ImmutableArray.Create(["public", "override"]) 
                 : ImmutableArray.Create(["public", "virtual"]),
             type: "void",
@@ -133,7 +135,7 @@ public class FloodGenerator : IIncrementalGenerator
         return typeModel;
     }
 
-    private static bool IsOverride(SemanticModel semanticModel, ClassDeclarationSyntax classSyntax)
+    private static bool IsConstructOverride(SemanticModel semanticModel, ClassDeclarationSyntax classSyntax)
     {
         var attributeName = "FloodAttribute";
 

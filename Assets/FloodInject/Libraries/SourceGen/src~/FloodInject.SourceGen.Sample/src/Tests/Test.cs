@@ -1,36 +1,52 @@
 using FloodInject.Runtime;
 using UnityEngine;
 
+#pragma warning disable CS0649
+#pragma warning disable CS8618
+
 namespace SourceGenerators.Sample.Tests;
 
-[FloodStreamRequirement(typeof(Hero))]
-public partial class HeroStreamSO : AManagedStreamSO;
+public class Setting<T>
+{
+    public T value { get; set; }
+}
+public class DifficultySetting : Setting<int>;
+public class VolumeSetting : Setting<float>;
 
-public class PlayerStreamSO : ADynamicStreamSO;
+[FloodStreamRequirement(typeof(DifficultySetting))]
+[FloodStreamRequirement(typeof(VolumeSetting))]
+public partial class SettingsStreamSO : AManagedStreamSO;
 
-public class GameSettings { }
-public record HeroInit { }
-public class PlayerController { }
+public class HealthSO : ScriptableObject
+{
+    [SerializeField] AnimationCurve _difficultyHealthCurve;
+    public AnimationCurve difficultyHealthCurve => _difficultyHealthCurve;
+}
 
 [Flood]
-public partial class Unit : MonoBehaviour
+public partial class HealthComponent : MonoBehaviour
 {
-    [FloodResolve] private GameSettings _gameSettings;
-    
-    protected void Start()
+    [FloodResolve(typeof(SettingsStreamSO))] DifficultySetting _difficultySetting;
+    [SerializeField] HealthSO _healthSO;
+
+    private float _maxHealth;
+    private float _currentHealth;
+
+    public void Init()
     {
         Construct();
+        var health = _healthSO.difficultyHealthCurve.Evaluate(_difficultySetting.value);
+        _maxHealth = health;
+        _currentHealth = health;
     }
 }
 
 [Flood]
-public partial class Hero : Unit
+public partial class SettingsViewController : MonoBehaviour
 {
-    [FloodResolve(typeof(HeroStreamSO))] private HeroInit _heroInit;
-    [FloodResolve(typeof(PlayerStreamSO))] private PlayerController _playerController;
-    
-    protected new void Start()
-    {
-        Construct();
-    }
+    [FloodResolve(typeof(SettingsStreamSO))] DifficultySetting _difficultySetting;
+    [FloodResolve(typeof(SettingsStreamSO))] VolumeSetting _volumeSetting;
 }
+
+#pragma warning restore CS0649
+#pragma warning restore CS8618

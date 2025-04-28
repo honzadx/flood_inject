@@ -24,7 +24,7 @@ namespace FloodInject.Runtime
 
         public T GetStream<T>() where T : AStreamSO
         {
-            return _streams[typeof(T)] as T;
+            return (T)_streams[typeof(T)];
         }
 
         public void RegisterStream<T>(T stream) where T : AStreamSO

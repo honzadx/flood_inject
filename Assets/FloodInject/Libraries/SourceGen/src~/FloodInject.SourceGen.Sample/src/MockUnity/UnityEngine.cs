@@ -29,6 +29,14 @@ namespace UnityEngine
             return new T();
         }
     }
+
+    public struct AnimationCurve
+    {
+        public float Evaluate(float time)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
     
     public class MonoBehaviour;
 
